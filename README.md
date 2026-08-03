@@ -48,16 +48,73 @@ this update, the next place to look is `code.gs` in the Apps Script editor
 
 ---
 
+## 2026-08-03 (later same day): code.gs, from scratch
+
+Topics still weren't loading after the redesign, and I never actually had
+your `code.gs` to look at — every message asking for it went out without
+a file attached. Rather than keep guessing blind, this update includes a
+**complete, from-scratch `code.gs`** built to match exactly what
+`index.html` already calls, plus two changes that close off the most
+common ways an Apps Script web app silently fails for everyone but its
+owner:
+
+- **It binds to your actual sheet**, not a new one. Open your real
+  "Kindergarten" spreadsheet → Extensions → Apps Script, rather than
+  starting a standalone project — see step 1 below. This was the most
+  likely single cause: a standalone project calling
+  `SpreadsheetApp.getActiveSpreadsheet()` has no "active" sheet to find
+  and fails on every request, whether or not the deployment itself is
+  configured correctly.
+- **Reads are batched** — one `getRange(...).getValues()` call per sheet,
+  never a `getValue()` loop per cell — the other classic cause of a slow
+  Apps Script web app. (Your sheet only has ~10 real rows though, so this
+  was more a safety net than the actual fix.)
+
+Two things worth doing in the Sheet itself, unrelated to the code: **row 2
+of your Topics tab has leftover label text** sitting where the first real
+topic should be (`Topic (تەوەر / بابەت) | ...`) — delete that row. And the
+Teachers tab's `No` column formula wasn't dragged down past row 4, so
+`code.gs` now writes plain numbers there instead of relying on the
+formula.
+
+**Also added:** the search box is now disabled (greyed out, with a
+"please wait" placeholder) until topics have actually finished loading,
+and switches to a "couldn't load — retry below" placeholder if loading
+fails, so it's never possible to type a check against an empty archive.
+
+---
+
 ## 1. Deploy the backend (Google Apps Script)
 
-1. Go to [script.google.com](https://script.google.com) → **New project**.
-2. Delete the default content and paste in your `code.gs`.
+1. Open your actual **Kindergarten Google Sheet** (the one with your real
+   Topics/Teachers data) → **Extensions → Apps Script**. This binds the
+   script to that exact spreadsheet — no separate ID to manage, and no
+   risk of it creating or touching the wrong file.
+2. Delete the default content and paste in `code.gs` from this package.
 3. **Deploy → New deployment → Web app**
    - Execute as: **Me**
-   - Who has access: **Anyone**
-   - Approve the permissions prompt (Sheets + Gmail) when it appears.
-4. Copy the `/exec` URL. The Sheet (Topics + Teachers tabs) auto-creates
-   itself the first time anyone opens the app or you open Admin.
+   - Who has access: **Anyone** — must be exactly this, not "Anyone with
+     Google account." This is the single most common reason a web app
+     works for its owner but hangs or fails for everyone else.
+   - Approve the permissions prompt (Sheets + Gmail). You'll likely see a
+     "Google hasn't verified this app" warning first — that's expected
+     for a script you wrote yourself: click **Advanced** → **Go to
+     [project name] (unsafe)** → **Allow**.
+4. Copy the `/exec` URL. The Topics/Teachers tabs are created
+   automatically if they don't already exist — since yours already do,
+   nothing gets overwritten.
+
+**If you edit `code.gs` again later:** saving alone does not update the
+live `/exec` URL. Go to **Deploy → Manage deployments → (edit icon) →
+Version: New version → Deploy**. Skipping this step is the most common
+reason "I fixed the code but nothing changed."
+
+**To check it's actually working, independent of the app:** open the
+`/exec?action=getTopics` URL directly in a browser. You should see raw
+text starting with `{"success":true,"topics":[...`. If instead you see a
+Google sign-in page, a "Sorry, unable to open the file" page, or anything
+that isn't that JSON, the deployment access setting (step 3) is the
+place to check first.
 
 ## 2. Connect the frontend
 
@@ -102,12 +159,15 @@ invite email to one, several, or all teachers at once.
 
 ## Files in this package
 
-All flat, no subfolders:
-
-- `index.html` — the entire app: markup, styles, and JavaScript.
-- `manifest.webmanifest`, `sw.js` — PWA support.
-- `favicon.ico`, `favicon-16.png`, `favicon-32.png`, `apple-touch-icon.png`,
-  `icon-192.png`, `icon-512.png`, `maskable-512.png` — icons.
+- `code.gs` — the backend. This does **not** go in the GitHub repo — it
+  goes in the Apps Script editor (Extensions → Apps Script from inside
+  your Google Sheet). See "Deploy the backend" above.
+- Everything else is flat, no subfolders, and goes in the GitHub repo:
+  `index.html` (the entire frontend: markup, styles, and JavaScript),
+  `manifest.webmanifest` + `sw.js` (PWA support), and the icon files
+  (`favicon.ico`, `favicon-16.png`, `favicon-32.png`,
+  `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`,
+  `maskable-512.png`).
 
 ## Notes & assumptions
 
