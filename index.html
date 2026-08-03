@@ -954,6 +954,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     // now lives in this one file — nothing else to keep in sync.
     // ============================================================
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbyiBeWsxf_FWoxTht8YXNcigyiyajKLDCq4bVaLYSI3ZChQ6mMeE0qv8qmKwf8LAyMM/exec';
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx7x9l2MbhMisT-gpytYTWsgt9Hu-DuYlARA1Br_IGUC_QX43lNX6goaXqX3RQRpD4/pub?output=csv&sheet=Topics';
 
     // ============================================================
     // API layer — timeout + one safe retry on GET (read-only) calls
@@ -1130,47 +1131,47 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     const SEARCH_PLACEHOLDER_LOADING = 'چاوەڕێبە... ناونیشانەکان باردەکرێن';
     const SEARCH_PLACEHOLDER_FAILED = 'نەتوانرا باربکرێت — دووبارە هەوڵبدەرەوە لە خوارەوە بکە';
 
+    function parseCSV(text) {
+      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+      const topics = [];
+      // Skip row 0 and 1 (header and subtitle rows)
+      for (let i = 2; i < lines.length; i++) {
+        const cols = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+        if (cols[0]) {
+          topics.push({
+            title: cols[0] || '',
+            academicYear: cols[1] || '',
+            supervisor: cols[2] || '',
+            researchLink: cols[3] || '',
+            abstract: cols[4] || ''
+          });
+        }
+      }
+      return topics;
+    }
+
     async function loadPublicData() {
       loadFailed = false;
       loadErrorMessage = '';
       setSearchEnabled(false, SEARCH_PLACEHOLDER_LOADING);
       renderSkeleton('چاوەڕێبە... ناونیشانەکان باردەکرێن');
 
-      if (!isConfigured()) {
-        document.getElementById('configWarning').style.display = 'block';
-        loadFailed = true;
-        loadErrorMessage = 'ئەم پەڕگەیە هێشتا ڕێکنەخراوە.';
-        setSearchEnabled(false, SEARCH_PLACEHOLDER_FAILED);
-        renderRibbon();
-        populateSupervisorFilter();
-        renderResults();
-        return;
-      }
-
-      // If the first request is taking a while, reassure the user instead
-      // of leaving a silent skeleton on screen — Apps Script can be slow
-      // to "wake up" after sitting idle.
-      stillLoadingTimer = setTimeout(() => {
-        renderSkeleton('هێشتا باردەکرێت... یەکەم گەیشتن هەندێک جار درەنگتر دەبێت، تکایە چاوەڕێبە');
-      }, 5000);
-
-      const [topicsRes, settingsRes] = await Promise.allSettled([
-        apiGet('getTopics', {}),
-        apiGet('getSettings', {})
-      ]);
-      clearTimeout(stillLoadingTimer);
-
-      if (topicsRes.status === 'fulfilled') {
-        allTopics = topicsRes.value.topics;
+      try {
+        const res = await fetch(CSV_URL);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const csvText = await res.text();
+        allTopics = parseCSV(csvText);
         setSearchEnabled(true, SEARCH_PLACEHOLDER_DEFAULT);
-      } else {
+      } catch (err) {
         loadFailed = true;
-        loadErrorMessage = topicsRes.reason?.message || 'نەتوانرا ناونیشانەکان باربکرێن.';
+        loadErrorMessage = 'نەتوانرا ناونیشانەکان باربکرێن.';
         setSearchEnabled(false, SEARCH_PLACEHOLDER_FAILED);
       }
 
-      if (settingsRes.status === 'fulfilled') {
-        settings = settingsRes.value.settings;
+      if (isConfigured()) {
+        apiGet('getSettings', {}).then(res => {
+          if (res && res.settings) settings = res.settings;
+        }).catch(() => {});
       }
 
       renderRibbon();
@@ -1188,10 +1189,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
     function renderRibbon() {
       const years = [...new Set(allTopics.map(t => t.academicYear).filter(Boolean))].sort().reverse();
-      if (!years.includes(settings.academicYear)) years.unshift(settings.academicYear);
       const chips = [`<button class="ribbon-pill ${yearFilter === 'all' ? 'active' : ''}" onclick="setYearFilter('all')">هەموو ساڵەکان</button>`]
         .concat(years.map(y => {
-          const label = y === settings.academicYear ? `${y} •` : y;
+          const label = (settings.academicYear && y === settings.academicYear) ? `${y} •` : y;
           return `<button class="ribbon-pill ${yearFilter === y ? 'active' : ''}" onclick="setYearFilter('${y}')">${escapeHtml(label)}</button>`;
         }));
       document.getElementById('ribbon').innerHTML = chips.join('');
