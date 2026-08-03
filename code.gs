@@ -5,13 +5,15 @@
  * ============================================================
  * DEPLOYMENT — read this before pasting the code
  * ============================================================
- * 1. Open your actual "Kindergarten" Google Sheet (the one with your
- *    real Topics/Teachers data) → Extensions → Apps Script.
- *    This binds the script to that exact spreadsheet, so there's no
- *    separate spreadsheet ID to manage and no risk of it creating or
- *    touching the wrong file.
- * 2. Delete the default content, paste this whole file in.
- * 3. Deploy → New deployment → Web app:
+ * This script targets your Kindergarten sheet directly by ID (see
+ * SHEET_ID below), so it works whether you paste it into a standalone
+ * project (script.google.com → New project) or a script bound to the
+ * sheet (Extensions → Apps Script from inside it) — either is fine.
+ *
+ * 1. script.google.com → New project (or Extensions → Apps Script from
+ *    inside the sheet). Delete the default content, paste this whole
+ *    file in.
+ * 2. Deploy → New deployment → Web app:
  *      Execute as:      Me
  *      Who has access:  Anyone      <-- MUST be exactly "Anyone", not
  *                                       "Anyone with Google account".
@@ -22,7 +24,7 @@
  *    see a "Google hasn't verified this app" warning first; that's
  *    expected for a script you wrote yourself. Click "Advanced" →
  *    "Go to [project name] (unsafe)" → Allow.
- * 4. Copy the /exec URL into GAS_URL near the top of index.html.
+ * 3. Copy the /exec URL into GAS_URL near the top of index.html.
  *
  * IMPORTANT — if you edit this code LATER: saving alone does not
  * update the live /exec URL. You must go to Deploy → Manage
@@ -42,6 +44,7 @@
  * see readSettings() / readPassword() below.
  */
 
+const SHEET_ID = '1S4iHspjBGmjV5F8hUvUemmhtGVHRS8CWyIa58XwnoeM'; // your Kindergarten sheet, hardcoded — works whether this script is bound or standalone
 const TOPICS_SHEET = 'Topics';
 const TEACHERS_SHEET = 'Teachers';
 const DEFAULT_PASSWORD = 'UOR2026@';
@@ -109,7 +112,7 @@ function json(obj) {
 // ============================================================
 
 function ss() {
-  return SpreadsheetApp.getActiveSpreadsheet();
+  return SpreadsheetApp.openById(SHEET_ID);
 }
 
 function sheet(name, headers) {

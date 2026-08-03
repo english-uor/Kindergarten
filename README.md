@@ -84,14 +84,34 @@ fails, so it's never possible to type a check against an empty archive.
 
 ---
 
+## 2026-08-03 (again): SHEET_ID hardcoded, no more binding guesswork
+
+Still not loading after the last fix. You shared the Sheet's own link
+this time, which let me check your **live** sheet directly (not just the
+export) — confirmed the data and structure are exactly what I expected,
+so the remaining uncertainty was specifically "is the script actually
+reaching this spreadsheet at all."
+
+`code.gs` now has your Sheet's ID (`1S4iHspjBGmjV5F8hUvUemmhtGVHRS8CWyIa58XwnoeM`)
+hardcoded in it and opens it directly with `SpreadsheetApp.openById(...)`.
+This works no matter how the Apps Script project was created — standalone
+or bound to the sheet — so it removes that whole class of uncertainty
+rather than depending on you having set it up one particular way.
+
+If topics *still* don't load after redeploying this version, the cause is
+almost certainly the deployment's access setting or authorization, not
+the code — see the diagnostic link at the end of step 1 below, and please
+share exactly what it shows.
+
+---
+
 ## 1. Deploy the backend (Google Apps Script)
 
-1. Open your actual **Kindergarten Google Sheet** (the one with your real
-   Topics/Teachers data) → **Extensions → Apps Script**. This binds the
-   script to that exact spreadsheet — no separate ID to manage, and no
-   risk of it creating or touching the wrong file.
-2. Delete the default content and paste in `code.gs` from this package.
-3. **Deploy → New deployment → Web app**
+1. script.google.com → **New project** (or Extensions → Apps Script from
+   inside the sheet — both work now, since the sheet is targeted by ID
+   in the code itself). Delete the default content and paste in
+   `code.gs` from this package.
+2. **Deploy → New deployment → Web app**
    - Execute as: **Me**
    - Who has access: **Anyone** — must be exactly this, not "Anyone with
      Google account." This is the single most common reason a web app
@@ -100,7 +120,7 @@ fails, so it's never possible to type a check against an empty archive.
      "Google hasn't verified this app" warning first — that's expected
      for a script you wrote yourself: click **Advanced** → **Go to
      [project name] (unsafe)** → **Allow**.
-4. Copy the `/exec` URL. The Topics/Teachers tabs are created
+3. Copy the `/exec` URL. The Topics/Teachers tabs are created
    automatically if they don't already exist — since yours already do,
    nothing gets overwritten.
 
@@ -110,6 +130,7 @@ Version: New version → Deploy**. Skipping this step is the most common
 reason "I fixed the code but nothing changed."
 
 **To check it's actually working, independent of the app:** open the
+
 `/exec?action=getTopics` URL directly in a browser. You should see raw
 text starting with `{"success":true,"topics":[...`. If instead you see a
 Google sign-in page, a "Sorry, unable to open the file" page, or anything
