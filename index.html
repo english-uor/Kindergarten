@@ -1016,21 +1016,18 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     </div>
   </div>
 
-  <!-- Code gate: shown before sending a teacher on to the external topic-registration system -->
+  <!-- Reminder shown before sending a teacher on to the external topic-registration system. This is an attention/alert message only — it does not check or require the code, it just reminds the teacher to have it ready and to double-check their topics first. -->
   <div id="codeGateModal" class="modal-overlay" style="display:none;">
     <div class="modal-box">
       <h3>پێش چوونە سیستەمی تۆمارکردن</h3>
       <p class="lead" style="font-size:14px;line-height:1.85;margin:0 0 18px;">
-        تکایە ئەو کۆدە تایبەتییە بنووسە کە بە ئیمەیلی زانکۆییەکەتەوە بۆت نێردراوە.
+        کۆدی تایبەتیت کە بە ئیمەیلی زانکۆییەکەتەوە بۆت نێردراوە لەلای خۆت هەبێت، چونکە لە سیستەمی تۆمارکردندا پێویستت پێی دەبێت.
         دڵنیابەرەوە کە پێش ناردن هەموو بابەتەکانت پشکنیوتە و دڵنیایت لە نوێبوونیان —
         <strong class="code-gate-warn">دوای ناردن ناتوانیت هەڵیبوەشێنیتەوە یان بیگۆڕیت.</strong>
       </p>
-      <label for="codeGateInput">کۆدی تایبەت</label>
-      <input type="text" id="codeGateInput" style="text-align:center;letter-spacing:2px;font-weight:700;text-transform:uppercase;" placeholder="XXXX-XXXX" onkeydown="if(event.key==='Enter')submitCodeGate()">
-      <p id="codeGateMsg" class="helper-text" style="margin:-8px 0 14px;"></p>
       <div class="modal-actions">
         <button class="btn btn-outline btn-sm" onclick="closeModal('codeGateModal')">🔙 گەڕانەوە بۆ گەڕان</button>
-        <button class="btn btn-primary btn-sm" id="codeGateSubmitBtn" onclick="submitCodeGate()">بەردەوامبوون بۆ ناردن ⟵</button>
+        <button class="btn btn-primary btn-sm" onclick="proceedToRegister()">بەردەوامبوون بۆ تۆمارکردن ⟵</button>
       </div>
     </div>
   </div>
@@ -1048,7 +1045,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     // Everything (config, API layer, matching logic, and app logic)
     // now lives in this one file — nothing else to keep in sync.
     // ============================================================
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzSsbSSto6Xxt7aptSIjvgqj51RhZdp-BQTVXZHZwPwCh-wV-Z8UvGrzcDOFDvGZ9pW/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyiBeWsxf_FWoxTht8YXNcigyiyajKLDCq4bVaLYSI3ZChQ6mMeE0qv8qmKwf8LAyMM/exec';
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx7x9l2MbhMisT-gpytYTWsgt9Hu-DuYlARA1Br_IGUC_QX43lNX6goaXqX3RQRpD4/pub?output=csv&sheet=Topics';
 
     // ============================================================
@@ -1261,28 +1258,46 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx
       setSearchEnabled(false, SEARCH_PLACEHOLDER_LOADING);
       renderSkeleton('چاوەڕێبە... ناونیشانەکان باردەکرێن');
 
+      const settingsPromise = isConfigured()
+        ? apiGet('getSettings', {}).then(res => {
+            if (res && res.settings) settings = res.settings;
+            applyThresholdSettings();
+          }).catch(() => {})
+        : Promise.resolve();
+
+      await Promise.all([settingsPromise, loadTopicsList()]);
+
+      setSearchEnabled(!loadFailed, loadFailed ? SEARCH_PLACEHOLDER_FAILED : SEARCH_PLACEHOLDER_DEFAULT);
+
+      renderRibbon();
+      populateSupervisorFilter();
+      renderResults();
+    }
+
+    // Primary source: live data straight from the Sheet via Apps Script —
+    // always current, no "Publish to web" snapshot/staleness risk. Backup:
+    // the published CSV, used only if the live call fails (e.g. Apps
+    // Script temporarily unreachable) so the page still has something to
+    // show.
+    async function loadTopicsList() {
+      if (isConfigured()) {
+        try {
+          const res = await apiGet('getTopics', {});
+          allTopics = res.topics || [];
+          return;
+        } catch (err) {
+          // fall through to the CSV backup below
+        }
+      }
       try {
         const res = await fetch(CSV_URL);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const csvText = await res.text();
         allTopics = parseCSV(csvText);
-        setSearchEnabled(true, SEARCH_PLACEHOLDER_DEFAULT);
       } catch (err) {
         loadFailed = true;
         loadErrorMessage = 'نەتوانرا ناونیشانەکان باربکرێن.';
-        setSearchEnabled(false, SEARCH_PLACEHOLDER_FAILED);
       }
-
-      if (isConfigured()) {
-        apiGet('getSettings', {}).then(res => {
-          if (res && res.settings) settings = res.settings;
-          applyThresholdSettings();
-        }).catch(() => {});
-      }
-
-      renderRibbon();
-      populateSupervisorFilter();
-      renderResults();
     }
 
     function renderSkeleton(message) {
@@ -1537,54 +1552,19 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx
     }
 
     // ============================================================
-    // CODE GATE — shown before sending someone to the external
-    // topic-registration system. Requires the code emailed to them.
+    // REGISTRATION REMINDER — shown before sending someone to the
+    // external topic-registration system. This is an attention/alert
+    // only: it does not check the code, it just reminds the teacher to
+    // have it ready and to double-check their topics. If they want, they
+    // can go straight through to the registration link.
     // ============================================================
-    let codeGateVerifying = false;
-
     function openCodeGate() {
-      document.getElementById('codeGateInput').value = '';
-      document.getElementById('codeGateMsg').textContent = '';
       openModal('codeGateModal');
-      setTimeout(() => document.getElementById('codeGateInput').focus(), 50);
     }
 
-    async function submitCodeGate() {
-      if (codeGateVerifying) return;
-      const input = document.getElementById('codeGateInput');
-      const msg = document.getElementById('codeGateMsg');
-      const code = input.value.trim();
-      if (!code) {
-        msg.textContent = '⚠ تکایە کۆدەکەت بنووسە.';
-        msg.style.color = '#A6432E';
-        return;
-      }
-
-      codeGateVerifying = true;
-      const btn = document.getElementById('codeGateSubmitBtn');
-      btn.disabled = true;
-      msg.textContent = 'پشکنینی کۆد...';
-      msg.style.color = '#6B7488';
-      try {
-        const res = await apiGet('verifyCode', { code });
-        if (res.valid) {
-          msg.textContent = `✓ کۆدەکە دروستە — بەخێربێیت ${res.teacherName || ''}`;
-          msg.style.color = '#4B7A63';
-          setTimeout(() => {
-            closeModal('codeGateModal');
-            if (settings.registerUrl) window.open(settings.registerUrl, '_blank', 'noopener');
-          }, 700);
-        } else {
-          msg.textContent = '⚠ ئەم کۆدە هەڵەیە. تکایە کۆدەکەی ناو ئیمەیلەکەت وردبینەوە.';
-          msg.style.color = '#A6432E';
-        }
-      } catch (err) {
-        msg.textContent = '⚠ هەڵە: ' + err.message;
-        msg.style.color = '#A6432E';
-      } finally {
-        codeGateVerifying = false;
-        btn.disabled = false;
-      }
+    function proceedToRegister() {
+      closeModal('codeGateModal');
+      if (settings.registerUrl) window.open(settings.registerUrl, '_blank', 'noopener');
     }
 
     // ============================================================
