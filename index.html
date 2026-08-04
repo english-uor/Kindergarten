@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Library of Kindergarten Research — کتێبخانەی توێژینەوە</title>
+<title>Library of English Research — کتێبخانەی توێژینەوە</title>
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.webmanifest">
@@ -693,6 +693,52 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   outline-offset: 2px;
 }
 
+/* -------------------- admin: all-database duplicate check -------------------- */
+.check-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  background: #FCFBF6;
+  animation: slideIn 0.2s var(--ease);
+}
+.check-row-body { flex: 1 1 auto; min-width: 0; }
+.check-row-body h4 { font-size: 14.5px; margin: 0 0 4px; color: var(--navy); line-height: 1.6; }
+.check-timestamp { font-size: 13px; color: var(--ink-soft); margin: 0 0 10px; font-style: italic; }
+
+.tick {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 15px;
+  margin-top: 2px;
+}
+.tick-ok { background: var(--sage-soft); color: var(--sage); }
+.tick-dup { background: var(--rust-soft); color: var(--rust); }
+
+/* -------------------- read-only PDF preview (detail modal) -------------------- */
+.pdf-frame {
+  width: 100%;
+  height: 60vh;
+  min-height: 340px;
+  max-height: 560px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  margin-top: 6px;
+  background: #FCFBF6;
+}
+.pdf-note { font-size: 12px; color: var(--ink-faint); margin: 6px 0 0; }
+
+/* -------------------- code gate (register flow) -------------------- */
+.code-gate-warn { color: var(--rust); }
+
 /* -------------------- small screens -------------------- */
 @media (max-width: 480px) {
   .topbar-title { font-size: 16px; }
@@ -713,7 +759,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     <div class="topbar-inner">
       <div class="topbar-brand">
         <span class="topbar-eyebrow">زانکۆی ڕاپەرین · کۆلێژی پەروەردەی بنەڕەتی</span>
-        <span class="topbar-title">بەشی باخچەی منداڵان</span>
+        <span class="topbar-title">بەشی زمانی ئینگلیزی</span>
       </div>
       <button class="admin-toggle" id="adminToggleBtn" onclick="openAdmin()">🛡️ ئەدمین</button>
     </div>
@@ -789,6 +835,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
       </div>
 
       <div class="detail-block" id="detailLinkBlock"></div>
+      <div class="detail-block" id="detailCloseTopics"></div>
     </div>
   </div>
 
@@ -844,6 +891,17 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
             <span id="bulkTopicsMsg" class="helper-text" style="display:inline-block;margin-right:10px;"></span>
           </div>
 
+          <div class="panel" style="margin-bottom:20px;">
+            <div class="section-title">پشکنینی دووبارەبوونەوەی هەموو ناونیشانەکان</div>
+            <div class="section-sub">هەموو ناونیشانەکانی تۆمارکراو بەیەکتری بەراورد دەکات — ئەگەر ڕێژەی لێکچوونی زیاتر لە <span id="dupThresholdHint">٪85</span> لەگەڵ ناونیشانێکی تر هەبێت وەک گومانلێکراو بە دووبارە نیشان دەدرێت. (دەتوانیت ئەم ڕێژانە بگۆڕیت لە تابی «ڕێکخستنەکان»)</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+              <button class="btn btn-primary btn-sm" onclick="runDuplicateCheck()">🔍 دەستپێکردنی پشکنین</button>
+              <button class="btn btn-outline btn-sm" id="exportCheckPdfBtn" style="display:none;" onclick="exportCheckAsPDF()">⬇ دەرهێنان وەک PDF</button>
+              <button class="btn btn-outline btn-sm" id="exportCheckWordBtn" style="display:none;" onclick="exportCheckAsWord()">⬇ دەرهێنان وەک Word</button>
+            </div>
+            <div id="checkReportArea" style="margin-top:16px;"></div>
+          </div>
+
           <div class="filters">
             <div class="search-wrap" style="flex:1 1 280px;"><input type="text" id="topicSearch" placeholder="🔎 گەڕان..." oninput="renderTopicsTable()" style="border-radius:var(--radius-sm);padding:13px 16px;"></div>
             <select id="topicYearFilter" onchange="renderTopicsTable()"></select>
@@ -881,7 +939,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
             <table>
               <thead><tr>
                 <th><input type="checkbox" id="selectAllTeachers" onchange="toggleSelectAll(this)"></th>
-                <th>No</th><th>ناو</th><th>ئیمەیل</th><th>کردار</th>
+                <th>No</th><th>ناو</th><th>ئیمەیل</th><th>کۆد</th><th>کردار</th>
               </tr></thead>
               <tbody id="teachersTableBody"></tbody>
             </table>
@@ -903,6 +961,17 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
             <button class="btn btn-primary" onclick="saveSettings()">پاشەکەوتکردن</button>
             <p id="settingsMsg" class="helper-text" style="margin-top:12px;"></p>
           </div>
+
+          <div class="panel" style="margin-top:20px;">
+            <div class="section-title">ڕێژەی هەستیاریی پشکنینی دووبارەبوونەوە</div>
+            <div class="section-sub">ئەم ڕێژانە کاریگەرن لەسەر هەردوو پشکنین: گەڕانی گشتی و پشکنینی گشتیی ئەدمین. دەتوانیت بەپێی پێویست بەرزیان بکەیتەوە یان دابەزێنیت.</div>
+            <label for="setDupThreshold">ڕێژەی "دووبارەیە" (٪)</label>
+            <input type="number" id="setDupThreshold" min="1" max="100" placeholder="85">
+            <label for="setSimThreshold">ڕێژەی "لێکچووی هەیە" (٪)</label>
+            <input type="number" id="setSimThreshold" min="1" max="100" placeholder="50">
+            <button class="btn btn-primary" onclick="saveThresholds()">پاشەکەوتکردنی ڕێژەکان</button>
+            <p id="thresholdMsg" class="helper-text" style="margin-top:12px;"></p>
+          </div>
         </div>
       </div>
     </div>
@@ -918,8 +987,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
       <input type="text" id="editTopicYear">
       <label>سەرپەرشتیار</label>
       <input type="text" id="editTopicSupervisor">
-      <label>بەستەری توێژینەوە (گووگڵ درایڤ)</label>
-      <input type="text" id="editTopicLink" placeholder="https://drive.google.com/...">
+      <label>بەستەری توێژینەوە (تەنها ID فایلەکەی گووگڵ درایڤ، یان بەستەری تەواو)</label>
+      <input type="text" id="editTopicLink" placeholder="بۆ نموونە: 1A2B3C4D5E6F7G8H... یان بەستەری تەواو">
       <label>پوختە</label>
       <textarea id="editTopicAbstract"></textarea>
       <div class="modal-actions">
@@ -937,6 +1006,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
       <input type="text" id="editTeacherName">
       <label>ئیمەیل</label>
       <input type="email" id="editTeacherEmail">
+      <label>کۆدی تایبەت</label>
+      <input type="text" id="editTeacherCode" style="text-transform:uppercase;letter-spacing:1px;" placeholder="بەتاڵی بهێڵەوە بۆ دروستکردنی خۆکار لە کاتی ناردنی بەستەر">
+      <p class="helper-text" style="margin:-12px 0 4px;">ئەگەر بەتاڵ بهێڵدرێتەوە و پاشەکەوت بکرێت، جاری داهاتوو کە بەستەر بۆ ئەم مامۆستایە دەنێردرێت کۆدێکی نوێ خۆکارانە دروستدەکرێت.</p>
       <div class="modal-actions">
         <button class="btn btn-primary btn-sm" onclick="saveTeacherEdit()">پاشەکەوتکردن</button>
         <button class="btn btn-outline btn-sm" onclick="closeModal('teacherModal')">پاشگەزبوونەوە</button>
@@ -944,7 +1016,30 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     </div>
   </div>
 
+  <!-- Code gate: shown before sending a teacher on to the external topic-registration system -->
+  <div id="codeGateModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <h3>پێش چوونە سیستەمی تۆمارکردن</h3>
+      <p class="lead" style="font-size:14px;line-height:1.85;margin:0 0 18px;">
+        تکایە ئەو کۆدە تایبەتییە بنووسە کە بە ئیمەیلی زانکۆییەکەتەوە بۆت نێردراوە.
+        دڵنیابەرەوە کە پێش ناردن هەموو بابەتەکانت پشکنیوتە و دڵنیایت لە نوێبوونیان —
+        <strong class="code-gate-warn">دوای ناردن ناتوانیت هەڵیبوەشێنیتەوە یان بیگۆڕیت.</strong>
+      </p>
+      <label for="codeGateInput">کۆدی تایبەت</label>
+      <input type="text" id="codeGateInput" style="text-align:center;letter-spacing:2px;font-weight:700;text-transform:uppercase;" placeholder="XXXX-XXXX" onkeydown="if(event.key==='Enter')submitCodeGate()">
+      <p id="codeGateMsg" class="helper-text" style="margin:-8px 0 14px;"></p>
+      <div class="modal-actions">
+        <button class="btn btn-outline btn-sm" onclick="closeModal('codeGateModal')">🔙 گەڕانەوە بۆ گەڕان</button>
+        <button class="btn btn-primary btn-sm" id="codeGateSubmitBtn" onclick="submitCodeGate()">بەردەوامبوون بۆ ناردن ⟵</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toastHost"></div>
+
+  <!-- Used only by the admin "check topics" report export (PDF/Word) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <script>
     // ============================================================
@@ -953,7 +1048,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     // Everything (config, API layer, matching logic, and app logic)
     // now lives in this one file — nothing else to keep in sync.
     // ============================================================
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyiBeWsxf_FWoxTht8YXNcigyiyajKLDCq4bVaLYSI3ZChQ6mMeE0qv8qmKwf8LAyMM/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzSsbSSto6Xxt7aptSIjvgqj51RhZdp-BQTVXZHZwPwCh-wV-Z8UvGrzcDOFDvGZ9pW/exec';
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx7x9l2MbhMisT-gpytYTWsgt9Hu-DuYlARA1Br_IGUC_QX43lNX6goaXqX3RQRpD4/pub?output=csv&sheet=Topics';
 
     // ============================================================
@@ -1076,7 +1171,17 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx
       return Math.max(cs, ts * 0.9 + cs * 0.1);
     }
 
-    const SIMILARITY_THRESHOLDS = { duplicate: 0.82, similar: 0.5 };
+    // Mutable on purpose: an admin can retune these from the Settings tab
+    // (see applyThresholdSettings()) without touching code. Defaults match
+    // what shipped originally (85% / 50%) until settings load.
+    let SIMILARITY_THRESHOLDS = { duplicate: 0.85, similar: 0.5 };
+
+    function applyThresholdSettings() {
+      const dup = Number(settings.duplicateThreshold);
+      const sim = Number(settings.similarThreshold);
+      SIMILARITY_THRESHOLDS.duplicate = (dup > 0 && dup <= 100) ? dup / 100 : 0.85;
+      SIMILARITY_THRESHOLDS.similar = (sim > 0 && sim <= 100) ? sim / 100 : 0.5;
+    }
 
     function scoreAgainstTopics(query, topics) {
       return topics
@@ -1096,7 +1201,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx
     // ============================================================
     let allTopics = [];
     let currentResultsList = []; // whatever is currently rendered in #results, for click-to-open-detail
-    let settings = { academicYear: '2026-2027', appUrl: '', registerUrl: '' };
+    let settings = { academicYear: '2026-2027', appUrl: '', registerUrl: '', duplicateThreshold: 85, similarThreshold: 50 };
     let yearFilter = 'all';
     let adminPassword = null;
     let isLoggedIn = false;
@@ -1171,6 +1276,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx
       if (isConfigured()) {
         apiGet('getSettings', {}).then(res => {
           if (res && res.settings) settings = res.settings;
+          applyThresholdSettings();
         }).catch(() => {});
       }
 
@@ -1310,7 +1416,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx
         listEl.innerHTML = '';
         let actionsHtml = `<button type="button" class="btn btn-ghost btn-sm" onclick="copySearchText()" id="copyBtn">📋 کۆپیکردنی ناونیشان</button>`;
         if (settings.registerUrl) {
-          actionsHtml += `<a href="${escapeAttr(settings.registerUrl)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">چوونە سیستەمی تۆمارکردن ⟵</a>`;
+          actionsHtml += `<button type="button" class="btn btn-primary btn-sm" onclick="openCodeGate()">چوونە سیستەمی تۆمارکردن ⟵</button>`;
         }
         actionsEl.innerHTML = actionsHtml;
         actionsEl.style.display = 'flex';
@@ -1378,13 +1484,107 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx
       }
 
       const linkBlock = document.getElementById('detailLinkBlock');
-      if (t.researchLink && t.researchLink.trim()) {
-        linkBlock.innerHTML = `<a class="detail-link-btn" href="${escapeAttr(t.researchLink)}" target="_blank" rel="noopener">📄 خوێندنەوەی توێژینەوەکە</a>`;
+      const rawLink = (t.researchLink || '').trim();
+      const driveId = extractDriveFileId(rawLink);
+      if (driveId) {
+        linkBlock.innerHTML = `
+          <div class="b-label">خوێندنەوەی توێژینەوەکە (تەنها خوێندنەوە)</div>
+          <iframe class="pdf-frame" src="${escapeAttr(driveEmbedUrl(driveId))}" loading="lazy"></iframe>
+          <p class="pdf-note">ئەم فایلە تەنها بۆ خوێندنەوەیە و ناتوانرێت دابگیرێت.</p>
+        `;
+      } else if (rawLink) {
+        linkBlock.innerHTML = `<a class="detail-link-btn" href="${escapeAttr(rawLink)}" target="_blank" rel="noopener">📄 خوێندنەوەی توێژینەوەکە</a>`;
       } else {
         linkBlock.innerHTML = `<div class="b-label">خوێندنەوەی توێژینەوەکە</div><div class="b-body unavailable">هێشتا بەردەست نییە</div>`;
       }
 
+      const closeEl = document.getElementById('detailCloseTopics');
+      const others = allTopics.filter(o => !(o.title === t.title && o.supervisor === t.supervisor && o.academicYear === t.academicYear));
+      const closeMatches = scoreAgainstTopics(t.title, others).filter(m => m.level !== 'weak').slice(0, 4);
+      if (closeMatches.length) {
+        closeEl.innerHTML = `
+          <div class="b-label">ناونیشانی نزیک لەمە</div>
+          <div class="match-list">${closeMatches.map(m => `
+            <div class="match-item lvl-${m.level}">
+              <div class="m-title">${escapeHtml(m.title)}</div>
+              <div class="m-meta">${escapeHtml(m.supervisor || '')} · ${escapeHtml(m.academicYear || '')} · ڕێژەی لێکچوون ${Math.round(m.score * 100)}%</div>
+            </div>`).join('')}</div>
+        `;
+      } else {
+        closeEl.innerHTML = '';
+      }
+
       openModal('detailModal');
+    }
+
+    // ============================================================
+    // Drive file preview — the admin now just pastes the Drive FILE ID
+    // (or a full Drive link) into "Research Link". This turns either
+    // into an embedded read-only viewer instead of a downloadable link.
+    // ============================================================
+    function extractDriveFileId(link) {
+      if (!link) return '';
+      const s = link.trim();
+      if (!s) return '';
+      // A bare file ID: no slashes/spaces and not a URL at all.
+      if (!/[\/\s]/.test(s) && !/^https?:/i.test(s)) return s;
+      // A full Drive URL (file/d/ID/view, open?id=ID, etc.) — pull the ID out.
+      const m = s.match(/[-\w]{20,}/);
+      return m ? m[0] : '';
+    }
+    function driveEmbedUrl(fileId) {
+      return `https://drive.google.com/file/d/${encodeURIComponent(fileId)}/preview`;
+    }
+
+    // ============================================================
+    // CODE GATE — shown before sending someone to the external
+    // topic-registration system. Requires the code emailed to them.
+    // ============================================================
+    let codeGateVerifying = false;
+
+    function openCodeGate() {
+      document.getElementById('codeGateInput').value = '';
+      document.getElementById('codeGateMsg').textContent = '';
+      openModal('codeGateModal');
+      setTimeout(() => document.getElementById('codeGateInput').focus(), 50);
+    }
+
+    async function submitCodeGate() {
+      if (codeGateVerifying) return;
+      const input = document.getElementById('codeGateInput');
+      const msg = document.getElementById('codeGateMsg');
+      const code = input.value.trim();
+      if (!code) {
+        msg.textContent = '⚠ تکایە کۆدەکەت بنووسە.';
+        msg.style.color = '#A6432E';
+        return;
+      }
+
+      codeGateVerifying = true;
+      const btn = document.getElementById('codeGateSubmitBtn');
+      btn.disabled = true;
+      msg.textContent = 'پشکنینی کۆد...';
+      msg.style.color = '#6B7488';
+      try {
+        const res = await apiGet('verifyCode', { code });
+        if (res.valid) {
+          msg.textContent = `✓ کۆدەکە دروستە — بەخێربێیت ${res.teacherName || ''}`;
+          msg.style.color = '#4B7A63';
+          setTimeout(() => {
+            closeModal('codeGateModal');
+            if (settings.registerUrl) window.open(settings.registerUrl, '_blank', 'noopener');
+          }, 700);
+        } else {
+          msg.textContent = '⚠ ئەم کۆدە هەڵەیە. تکایە کۆدەکەی ناو ئیمەیلەکەت وردبینەوە.';
+          msg.style.color = '#A6432E';
+        }
+      } catch (err) {
+        msg.textContent = '⚠ هەڵە: ' + err.message;
+        msg.style.color = '#A6432E';
+      } finally {
+        codeGateVerifying = false;
+        btn.disabled = false;
+      }
     }
 
     // ============================================================
@@ -1478,10 +1678,18 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx
       document.getElementById('setYear').value = settings.academicYear || '';
       document.getElementById('setAppUrl').value = settings.appUrl || '';
       document.getElementById('setRegisterUrl').value = settings.registerUrl || '';
+      document.getElementById('setDupThreshold').value = settings.duplicateThreshold ?? 85;
+      document.getElementById('setSimThreshold').value = settings.similarThreshold ?? 50;
+      updateThresholdHintText();
       renderOverview();
       populateTopicYearFilter();
       renderTopicsTable();
       renderTeachersTable();
+    }
+
+    function updateThresholdHintText() {
+      const el = document.getElementById('dupThresholdHint');
+      if (el) el.textContent = `٪${Math.round(SIMILARITY_THRESHOLDS.duplicate * 100)}`;
     }
 
     function switchTab(name) {
@@ -1600,6 +1808,143 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx
       } catch (err) { msg.textContent = '⚠ هەڵە: ' + err.message; }
     }
 
+    // ---------- TOPICS: whole-database duplicate check ----------
+    // Reuses the same topicSimilarity() used by the public search-box
+    // check, but runs every topic against every other topic instead of
+    // a single typed query. Purely client-side over the already-loaded
+    // topicsAdmin list — no backend changes needed for this part.
+    let lastCheckReport = null; // { timestamp, rows: [...] }
+
+    function runDuplicateCheck() {
+      const list = topicsAdmin;
+      const rows = list.map((t, i) => {
+        const scored = list
+          .filter((o, j) => j !== i)
+          .map(o => ({ title: o.title, supervisor: o.supervisor, academicYear: o.academicYear, score: topicSimilarity(t.title, o.title) }))
+          .filter(o => o.score > 0.15)
+          .sort((a, b) => b.score - a.score);
+        const best = scored[0] || null;
+        const isDuplicate = !!best && best.score >= SIMILARITY_THRESHOLDS.duplicate;
+        const closeMatches = scored.filter(o => o.score >= SIMILARITY_THRESHOLDS.similar).slice(0, 4);
+        return { title: t.title, supervisor: t.supervisor, academicYear: t.academicYear, isDuplicate, closeMatches };
+      });
+
+      lastCheckReport = { timestamp: new Date(), rows };
+      renderCheckReport();
+      document.getElementById('exportCheckPdfBtn').style.display = 'inline-flex';
+      document.getElementById('exportCheckWordBtn').style.display = 'inline-flex';
+    }
+
+    function formatCheckTimestamp(d) {
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} — ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function renderCheckReport() {
+      const area = document.getElementById('checkReportArea');
+      if (!lastCheckReport) { area.innerHTML = ''; return; }
+      const { timestamp, rows } = lastCheckReport;
+      const dupCount = rows.filter(r => r.isDuplicate).length;
+      area.innerHTML = `
+        <p class="check-timestamp">ئەم پشکنینە بە شێوەی ئۆتۆماتیکی لەلایەن سیستەمەوە ئەنجامدراوە لە ${formatCheckTimestamp(timestamp)}</p>
+        <p class="results-count">${rows.length} ناونیشان پشکنرا · ${dupCount} گومانلێکراو بە دووبارە</p>
+        ${rows.map(r => `
+          <div class="check-row">
+            <span class="tick ${r.isDuplicate ? 'tick-dup' : 'tick-ok'}">${r.isDuplicate ? '✕' : '✓'}</span>
+            <div class="check-row-body">
+              <h4>${escapeHtml(r.title)}</h4>
+              <div class="m-meta">${escapeHtml(r.supervisor || '')} · ${escapeHtml(r.academicYear || '')}</div>
+              ${r.closeMatches.length ? `
+                <div class="match-list">${r.closeMatches.map(m => `
+                  <div class="match-item ${m.score >= SIMILARITY_THRESHOLDS.duplicate ? 'lvl-duplicate' : 'lvl-similar'}">
+                    <div class="m-title">${escapeHtml(m.title)}</div>
+                    <div class="m-meta">${escapeHtml(m.supervisor || '')} · ${escapeHtml(m.academicYear || '')} · ڕێژەی لێکچوون ${Math.round(m.score * 100)}%</div>
+                  </div>`).join('')}</div>
+              ` : '<div class="helper-text" style="margin:6px 0 0;">هیچ ناونیشانێکی نزیک نەدۆزرایەوە</div>'}
+            </div>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    function checkReportFilenameStamp() {
+      return formatCheckTimestamp(lastCheckReport.timestamp).replace(/[\/: —]+/g, '-');
+    }
+
+    // Real, selectable Kurdish/Arabic text — Word (and LibreOffice) open
+    // an HTML file saved with a .doc extension just fine.
+    function exportCheckAsWord() {
+      if (!lastCheckReport) return;
+      const { timestamp, rows } = lastCheckReport;
+      const rowsHtml = rows.map(r => `
+        <h3 style="font-size:15px;margin:16px 0 4px;color:#1B2942;">${escapeHtml(r.title)}</h3>
+        <p style="margin:0 0 4px;font-size:12.5px;color:#555;">${escapeHtml(r.supervisor || '')} — ${escapeHtml(r.academicYear || '')}</p>
+        <p style="margin:0 0 6px;font-weight:bold;color:${r.isDuplicate ? '#A6432E' : '#4B7A63'};">${r.isDuplicate ? '✕ گومانلێکراوە بە دووبارە' : '✓ دووبارە نییە'}</p>
+        ${r.closeMatches.length ? `<ul style="margin:0 0 10px;padding-right:18px;">${r.closeMatches.map(m => `<li>${escapeHtml(m.title)} — ${Math.round(m.score * 100)}%</li>`).join('')}</ul>` : ''}
+      `).join('');
+      const html = `<html dir="rtl" lang="ckb"><head><meta charset="UTF-8"></head><body style="font-family:Tahoma, Arial, sans-serif;">
+        <h1 style="font-size:18px;color:#1B2942;">ڕاپۆرتی پشکنینی دووبارەبوونەوەی ناونیشانەکان</h1>
+        <p style="font-size:12.5px;color:#555;">ئەم پشکنینە بە شێوەی ئۆتۆماتیکی لەلایەن سیستەمەوە ئەنجامدراوە لە ${formatCheckTimestamp(timestamp)}</p>
+        ${rowsHtml}
+      </body></html>`;
+      const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `topics-check-${checkReportFilenameStamp()}.doc`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    // Image-based PDF (via html2canvas → jsPDF): guarantees the Kurdish/
+    // Arabic script renders correctly, since it's a real screenshot of
+    // what the browser already draws — jsPDF's own text drawing can't
+    // shape Arabic script without embedding a custom font.
+    async function exportCheckAsPDF() {
+      if (!lastCheckReport) return;
+      const btn = document.getElementById('exportCheckPdfBtn');
+      const original = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'چاوەڕێبە...';
+      let wrapper;
+      try {
+        const source = document.getElementById('checkReportArea');
+        wrapper = document.createElement('div');
+        wrapper.style.cssText = 'position:fixed;top:-10000px;left:-10000px;width:760px;background:#fff;padding:24px;direction:rtl;font-family:Vazirmatn, Tahoma, Arial, sans-serif;';
+        wrapper.innerHTML = `<h1 style="font-size:20px;color:#1B2942;margin:0 0 6px;">ڕاپۆرتی پشکنینی دووبارەبوونەوەی ناونیشانەکان</h1>` + source.innerHTML;
+        document.body.appendChild(wrapper);
+
+        const canvas = await html2canvas(wrapper, { scale: 2, backgroundColor: '#ffffff' });
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'pt', 'a4');
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = pageWidth;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        const imgData = canvas.toDataURL('image/png');
+
+        let heightLeft = imgHeight;
+        let position = 0;
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+        pdf.save(`topics-check-${checkReportFilenameStamp()}.pdf`);
+      } catch (err) {
+        toast('دەرهێنانی PDF سەرکەوتوو نەبوو: ' + err.message);
+      } finally {
+        if (wrapper) wrapper.remove();
+        btn.disabled = false;
+        btn.textContent = original;
+      }
+    }
+
     // ---------- TEACHERS ----------
     function renderTeachersTable() {
       document.getElementById('teachersTableBody').innerHTML = teachersAdmin.map(t => `
@@ -1608,13 +1953,14 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx
           <td>${escapeHtml(String(t.no ?? ''))}</td>
           <td>${escapeHtml(t.name)}</td>
           <td>${escapeHtml(t.email) || '<span style="color:#A6432E;">بێ ئیمەیل</span>'}</td>
+          <td>${t.code ? `<code style="font-weight:700;letter-spacing:0.5px;">${escapeHtml(t.code)}</code>` : '<span style="color:var(--ink-faint);">—</span>'}</td>
           <td class="actions">
             <button class="btn btn-outline btn-sm" onclick="openTeacherEdit(${t.row})">دەستکاری</button>
             <button class="btn btn-primary btn-sm" onclick="sendInvites('one', ${t.row})">ناردن</button>
             <button class="btn btn-danger btn-sm" onclick="deleteTeacher(${t.row})">سڕینەوە</button>
           </td>
         </tr>
-      `).join('') || '<tr><td colspan="5" style="text-align:center;color:#6B7488;">هیچ مامۆستایەک نییە</td></tr>';
+      `).join('') || '<tr><td colspan="6" style="text-align:center;color:#6B7488;">هیچ مامۆستایەک نییە</td></tr>';
     }
 
     function toggleTeacherSelect(row, checked) {
@@ -1632,6 +1978,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx
       editingTeacherRow = row;
       document.getElementById('editTeacherName').value = t.name;
       document.getElementById('editTeacherEmail').value = t.email || '';
+      document.getElementById('editTeacherCode').value = t.code || '';
       openModal('teacherModal');
     }
 
@@ -1640,7 +1987,8 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx
         await authedPost('updateTeacher', {
           row: editingTeacherRow,
           name: document.getElementById('editTeacherName').value.trim(),
-          email: document.getElementById('editTeacherEmail').value.trim()
+          email: document.getElementById('editTeacherEmail').value.trim(),
+          code: document.getElementById('editTeacherCode').value.trim()
         });
         closeModal('teacherModal');
         toast('نوێکرایەوە ✓');
@@ -1716,6 +2064,8 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx
         };
         const res = await authedPost('updateSettings', payload);
         settings = res.settings;
+        applyThresholdSettings();
+        updateThresholdHintText();
         if (payload.newPassword) {
           adminPassword = payload.newPassword;
           localStorage.setItem('uor_admin_pw', adminPassword);
@@ -1724,6 +2074,40 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx
         msg.textContent = '✓ پاشەکەوتکرا.';
         msg.style.color = '#4B7A63';
         renderRibbon();
+      } catch (err) {
+        msg.textContent = '⚠ هەڵە: ' + err.message;
+        msg.style.color = '#A6432E';
+      }
+    }
+
+    // Lets an admin retune how sensitive both duplicate checks (the public
+    // search-box stamp and the admin whole-database check) are, without
+    // touching any code — saved the same way as the rest of Settings.
+    async function saveThresholds() {
+      const msg = document.getElementById('thresholdMsg');
+      const dupVal = Number(document.getElementById('setDupThreshold').value);
+      const simVal = Number(document.getElementById('setSimThreshold').value);
+
+      if (!dupVal || !simVal || dupVal < 1 || dupVal > 100 || simVal < 1 || simVal > 100) {
+        msg.textContent = '⚠ هەردوو ڕێژە دەبێت ژمارەیەک بن لەنێوان ١ و ١٠٠.';
+        msg.style.color = '#A6432E';
+        return;
+      }
+      if (dupVal <= simVal) {
+        msg.textContent = '⚠ ڕێژەی "دووبارەیە" دەبێت بەرزتر بێت لە ڕێژەی "لێکچووی هەیە".';
+        msg.style.color = '#A6432E';
+        return;
+      }
+
+      msg.textContent = 'پاشەکەوتکردن...';
+      msg.style.color = '#6B7488';
+      try {
+        const res = await authedPost('updateSettings', { duplicateThreshold: dupVal, similarThreshold: simVal });
+        settings = res.settings;
+        applyThresholdSettings();
+        updateThresholdHintText();
+        msg.textContent = '✓ ڕێژەکان پاشەکەوتکران.';
+        msg.style.color = '#4B7A63';
       } catch (err) {
         msg.textContent = '⚠ هەڵە: ' + err.message;
         msg.style.color = '#A6432E';
