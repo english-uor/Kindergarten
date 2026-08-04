@@ -1,2148 +1,616 @@
 <!DOCTYPE html>
-<html lang="ckb" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Library of English Research — کتێبخانەی توێژینەوە</title>
+<html lang="en" class="dark">
+<head> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Enghub</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#050B14" id="theme-color-meta">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Enghub">
+    
+    <link rel="icon" type="image/png" href="Icon23.png">
+    <link rel="apple-touch-icon" href="Icon23.png">
 
-<!-- PWA -->
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#1B2942">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
-<link rel="shortcut icon" href="favicon.ico">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="کتێبخانە">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+                        kurdish: ['system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif', 'Arial'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    boxShadow: {
+                        'glass': '0 4px 30px rgba(0, 0, 0, 0.1)',
+                        'glass-dark': '0 4px 30px rgba(0, 0, 0, 0.5)',
+                    }
+                }
+            }
+        }
+    </script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@500;700;800&family=Vazirmatn:wght@400;500;600;700&display=swap">
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-<style>
-/* ============================================================
-   TOKENS
-   Navy + gold is University of Raparin's own institutional
-   palette (used across Nawzad's other department tools) —
-   refined here toward a warmer "archive/ledger" feel: parchment
-   paper background, deeper navy, and the same semantic sage /
-   ochre / rust trio for clear / similar / duplicate results.
-   ============================================================ */
-:root {
-  --navy: #1B2942;
-  --navy-deep: #10182A;
-  --gold: #C9A227;
-  --gold-bright: #E3B94A;
-  --gold-soft: #EDD98F;
-  --sage: #4B7A63;
-  --sage-soft: #E4EFE9;
-  --ochre: #B8801F;
-  --ochre-soft: #F6E9D3;
-  --rust: #A6432E;
-  --rust-soft: #F5E2DE;
-  --paper: #F5F0E3;
-  --card: #FFFFFF;
-  --ink: #23324B;
-  --ink-soft: #6B7488;
-  --ink-faint: #9AA1B0;
-  --line: #E8E1CC;
-  --radius: 16px;
-  --radius-sm: 11px;
-  --shadow: 0 6px 22px rgba(27, 41, 66, 0.08);
-  --shadow-lift: 0 16px 38px rgba(27, 41, 66, 0.14);
-  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
-}
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: none;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        .glass-header {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .dark .glass-header {
+            background: rgba(11, 17, 33, 0.6);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
-html {
-  scroll-behavior: smooth;
-  font-size: 16px;
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
+        .search-glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        .dark .search-glass {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.05);
+        }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(201,162,39,0.08), transparent 45%),
-    radial-gradient(circle at 0% 100%, rgba(75,122,99,0.06), transparent 40%),
-    var(--paper);
-  background-attachment: fixed;
-  color: var(--ink);
-  font-family: 'Vazirmatn', 'Segoe UI', Tahoma, Arial, sans-serif;
-  direction: rtl;
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.5;
-}
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .toast-enter { animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        
+        @keyframes cardPop { from { opacity: 0; transform: scale(0.94) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .animate-card { animation: cardPop 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 
-h1, h2, h3, .display {
-  font-family: 'Noto Kufi Arabic', 'Vazirmatn', sans-serif;
-  color: var(--navy);
-  margin: 0;
-}
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob { animation: blob 12s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
 
-a { color: inherit; }
-button { font-family: inherit; }
-::selection { background: var(--gold-soft); color: var(--navy); }
+        @keyframes progress { 0% { width: 0%; opacity: 0; } 10% { opacity: 1; } 100% { width: 100%; opacity: 1; } }
+        .animate-progress { animation: progress 2.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+        .delay-500 { animation-delay: 0.5s; }
+        .delay-1000 { animation-delay: 1.0s; }
+        .delay-1500 { animation-delay: 1.5s; }
 
-/* -------------------- top bar (sticky — admin + identity always reachable) -------------------- */
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 500;
-  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
-  color: #fff;
-  padding: 14px 20px;
-  overflow: hidden;
-  box-shadow: 0 2px 14px rgba(16, 24, 42, 0.22);
-}
-.topbar::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
-  background-size: 18px 18px;
-  opacity: 0.5;
-  pointer-events: none;
-}
-.topbar::after {
-  content: '';
-  position: absolute;
-  top: -60%;
-  left: -10%;
-  width: 280px;
-  height: 280px;
-  background: radial-gradient(circle, rgba(201,162,39,0.25), transparent 70%);
-  pointer-events: none;
-}
-.topbar-inner {
-  position: relative;
-  max-width: 1000px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.topbar-brand { display: flex; flex-direction: column; gap: 2px; }
-.topbar-eyebrow { color: var(--gold-soft); font-size: 12px; letter-spacing: 0.3px; }
-.topbar-title { font-family: 'Noto Kufi Arabic', sans-serif; font-size: 17px; font-weight: 700; line-height: 1.4; }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(37, 99, 235, 0.2), inset 0 0 10px rgba(255,255,255,0.5); }
+            50% { box-shadow: 0 0 40px rgba(37, 99, 235, 0.5), inset 0 0 20px rgba(255,255,255,0.8); }
+        }
+        .dark .animate-logo-glow { animation: pulse-glow 2s ease-in-out infinite; }
 
-.admin-toggle {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.22);
-  color: #fff;
-  font-size: 13.5px;
-  font-weight: 600;
-  padding: 9px 16px;
-  border-radius: 999px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: background 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.15s var(--ease);
-  min-height: 40px;
-}
-.admin-toggle:hover { background: rgba(255,255,255,0.18); transform: translateY(-1px); }
-.admin-toggle:active { transform: scale(0.97); }
-.admin-toggle.logged-in { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+        #apps-container:hover .app-card::after { opacity: 1; }
+        .app-card::after {
+            content: ""; position: absolute; inset: 0; border-radius: inherit; opacity: 0; transition: opacity 0.4s ease;
+            background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.25), transparent 40%); z-index: 2; pointer-events: none;
+        }
+        .dark .app-card::after { background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.08), transparent 40%); }
+        .dark body { background-color: #050B14; }
 
-/* -------------------- layout -------------------- */
-.page { max-width: 1000px; margin: 0 auto; padding: 26px 20px 72px; }
+        .perspective-container { perspective: 1200px; }
+        .perspective-card { transform-style: preserve-3d; animation: floatWindow 6s ease-in-out infinite; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .perspective-card:hover { transform: rotateX(3deg) rotateY(-1deg) scale(1.005); }
+        @keyframes floatWindow { 0%, 100% { transform: translateY(0px) rotateX(0.5deg); } 50% { transform: translateY(-6px) rotateX(-0.5deg); } }
+        
+        .led-border-window { position: relative; overflow: hidden; box-shadow: 0 0 25px rgba(59, 130, 246, 0.35), 0 0 50px rgba(236, 72, 153, 0.2), inset 0 0 15px rgba(255, 255, 255, 0.1); }
+        .led-border-window::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, transparent 15%, #3b82f6, #8b5cf6, #ec4899, #22d3ee, transparent 85%); animation: rotateLED 4.5s linear infinite; z-index: 0;
+        }
+        .led-border-inner { position: relative; z-index: 1; margin: 5px; }
+        @keyframes rotateLED { 100% { transform: rotate(360deg); } }
+        .app-card { cursor: pointer; transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) !important; }
+        .app-card.is-pinned-card { border-color: rgba(245, 158, 11, 0.5) !important; box-shadow: 0 12px 25px -5px rgba(245, 158, 11, 0.15), inset 0 1px 0 0 rgba(255,255,255,0.05); }
 
-@media (min-width: 640px) {
-  .page { padding: 34px 24px 80px; }
-}
-
-.section-eyebrow {
-  display: inline-block;
-  font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  color: var(--gold);
-  background: var(--navy);
-  padding: 4px 12px;
-  border-radius: 999px;
-  margin-bottom: 12px;
-}
-
-/* -------------------- SECTION A: duplicate-check hero -------------------- */
-.check-hero {
-  position: relative;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 26px 24px 22px;
-  box-shadow: var(--shadow-lift);
-  overflow: hidden;
-}
-.check-hero::before {
-  content: '';
-  position: absolute;
-  top: 0; right: 0; left: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--gold), var(--gold-bright), var(--sage));
-}
-.check-hero h1 { font-size: clamp(21px, 4.8vw, 27px); line-height: 1.4; margin-bottom: 8px; }
-.check-hero .lead { color: var(--ink-soft); font-size: 15.5px; line-height: 1.85; margin: 0 0 22px; max-width: 620px; }
-
-.search-wrap { position: relative; }
-.search-wrap .search-icon {
-  position: absolute;
-  top: 50%; right: 18px;
-  transform: translateY(-50%);
-  color: var(--ink-faint);
-  pointer-events: none;
-  display: flex;
-}
-.search-wrap input {
-  width: 100%;
-  padding: 17px 48px 17px 46px;
-  border-radius: 999px;
-  font-size: 16px; /* 16px minimum: smaller triggers iOS Safari's auto-zoom-on-focus */
-  border: 1.5px solid var(--line);
-  background: #FCFBF6;
-  color: var(--ink);
-  font-family: inherit;
-  transition: border-color 0.18s var(--ease), box-shadow 0.18s var(--ease), background 0.18s var(--ease);
-}
-.search-wrap input:focus {
-  outline: none;
-  border-color: var(--gold);
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(201,162,39,0.14);
-}
-.search-wrap input:disabled {
-  background: #EFEBDC;
-  color: var(--ink-faint);
-  cursor: not-allowed;
-}
-.search-wrap .clear-btn {
-  position: absolute;
-  top: 50%; left: 12px;
-  transform: translateY(-50%);
-  width: 30px; height: 30px;
-  border-radius: 50%;
-  border: none;
-  background: var(--line);
-  color: var(--ink-soft);
-  cursor: pointer;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  line-height: 1;
-}
-.search-wrap .clear-btn:hover { background: var(--ink-faint); color: #fff; }
-.search-wrap.has-text .clear-btn { display: flex; }
-
-.badge-warn {
-  display: inline-block;
-  background: var(--rust-soft);
-  color: var(--rust);
-  font-size: 12.5px;
-  font-weight: 700;
-  padding: 8px 14px;
-  border-radius: var(--radius-sm);
-  margin-bottom: 16px;
-}
-
-/* -------------------- the stamp: signature element --------------------
-   Echoes a registrar's ink stamp on an index card — the one bold visual
-   move on the page, reserved for the single moment that matters most:
-   the result of the duplicate check. */
-.stamp-area {
-  display: flex;
-  justify-content: center;
-  margin: 22px 0 4px;
-}
-.stamp {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 28px;
-  border: 2.5px solid currentColor;
-  border-radius: 999px;
-  font-family: 'Noto Kufi Arabic', sans-serif;
-  font-weight: 800;
-  font-size: 14.5px;
-  line-height: 1.5;
-  text-align: center;
-  position: relative;
-  transform: rotate(-3deg);
-  animation: stampDown 0.32s var(--ease);
-}
-.stamp::before {
-  content: '';
-  position: absolute;
-  inset: 3.5px;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  opacity: 0.45;
-  pointer-events: none;
-}
-.stamp .stamp-icon { font-size: 18px; flex: 0 0 auto; }
-.stamp.ok { color: var(--sage); background: var(--sage-soft); }
-.stamp.similar { color: var(--ochre); background: var(--ochre-soft); }
-.stamp.duplicate { color: var(--rust); background: var(--rust-soft); }
-
-@keyframes stampDown {
-  from { transform: rotate(-3deg) scale(1.35); opacity: 0; }
-  to { transform: rotate(-3deg) scale(1); opacity: 1; }
-}
-
-.dup-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 18px 0 4px; }
-.match-list { display: flex; flex-direction: column; gap: 8px; margin: 16px 0 0; }
-.match-item {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 12px 16px;
-  font-size: 14px;
-  background: #FCFBF6;
-  animation: slideIn 0.2s var(--ease);
-}
-.match-item .m-title { font-weight: 600; color: var(--ink); }
-.match-item .m-meta { color: var(--ink-soft); font-size: 12.5px; margin-top: 4px; }
-.match-item.lvl-duplicate { border-color: rgba(166,67,46,0.35); background: var(--rust-soft); }
-.match-item.lvl-similar { border-color: rgba(184,128,31,0.35); background: var(--ochre-soft); }
-
-/* -------------------- SECTION B: archive browse -------------------- */
-.archive-section { margin-top: 34px; }
-.archive-head { margin-bottom: 16px; }
-.archive-head h2 { font-size: 18px; font-weight: 700; }
-
-.ribbon-wrap { position: relative; }
-.ribbon {
-  padding: 2px 4px;
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.ribbon::-webkit-scrollbar { display: none; }
-
-.ribbon-pill {
-  flex: 0 0 auto;
-  font-size: 13.5px;
-  padding: 9px 16px;
-  border-radius: 999px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  color: var(--ink-soft);
-  cursor: pointer;
-  font-family: inherit;
-  min-height: 40px;
-  transition: background 0.18s var(--ease), border-color 0.18s var(--ease), color 0.18s var(--ease), transform 0.12s var(--ease);
-}
-.ribbon-pill:hover { border-color: var(--gold); color: var(--navy); transform: translateY(-1px); }
-.ribbon-pill:active { transform: scale(0.96); }
-.ribbon-pill.active {
-  background: var(--navy);
-  border-color: var(--navy);
-  color: #fff;
-  font-weight: 700;
-  box-shadow: 0 4px 14px rgba(27,41,66,0.25);
-}
-
-.filters { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0 18px; align-items: stretch; }
-.filters select {
-  margin-bottom: 0;
-  width: auto;
-  min-width: 180px;
-  flex: 1 1 auto;
-  border-radius: 999px;
-  padding: 12px 42px 12px 16px;
-  font-size: 15px;
-  border: 1.5px solid var(--line);
-  background-color: #FCFBF6;
-  color: var(--ink);
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7488' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-  background-repeat: no-repeat;
-  background-position: left 14px center;
-  background-size: 16px;
-}
-.filters select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 4px rgba(201,162,39,0.14); }
-
-.results-count { color: var(--ink-soft); font-size: 13.5px; margin: 0 0 14px; }
-
-#results {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-@media (min-width: 720px) {
-  #results { grid-template-columns: 1fr 1fr; }
-}
-
-/* topic cards styled like filed index cards: a small tab carrying the
-   academic year sits at the top edge, the way a divider tab marks a
-   drawer of physical catalog cards */
-.topic-card {
-  position: relative;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 4px var(--radius) var(--radius) 4px;
-  padding: 30px 44px 18px 20px;
-  animation: slideIn 0.28s var(--ease);
-  cursor: pointer;
-  transition: border-color 0.18s var(--ease), transform 0.15s var(--ease), box-shadow 0.18s var(--ease);
-}
-.topic-card:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: var(--shadow-lift); }
-.topic-card:active { transform: translateY(0) scale(0.99); }
-.topic-card .card-tab {
-  position: absolute;
-  top: -1px; right: 18px;
-  background: var(--navy);
-  color: var(--gold-soft);
-  font-family: 'Noto Kufi Arabic', sans-serif;
-  font-size: 11.5px;
-  font-weight: 700;
-  padding: 4px 12px 5px;
-  border-radius: 0 0 8px 8px;
-  line-height: 1.3;
-}
-.topic-card h4 { font-size: 16px; color: var(--navy); margin: 0 0 10px; line-height: 1.6; font-weight: 700; }
-.topic-card .chevron {
-  position: absolute;
-  top: 18px; left: 16px;
-  color: var(--ink-faint);
-  font-size: 15px;
-  transition: transform 0.18s var(--ease), color 0.18s var(--ease);
-}
-.topic-card:hover .chevron { color: var(--gold); transform: translateX(-3px); }
-.topic-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-.tag {
-  font-size: 12.5px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: var(--sage-soft);
-  color: var(--sage);
-  font-weight: 600;
-}
-.tag.year { background: #EFE7CB; color: var(--ochre); }
-
-.empty-state { grid-column: 1 / -1; text-align: center; padding: 54px 20px; color: var(--ink-soft); font-size: 14.5px; line-height: 1.8; }
-.empty-state .icon { font-size: 34px; display: block; margin-bottom: 12px; }
-
-/* -------------------- skeleton loader + loading notice -------------------- */
-.skeleton-card {
-  height: 78px;
-  border-radius: var(--radius);
-  background: linear-gradient(100deg, #ECE6D6 30%, #F7F3E8 50%, #ECE6D6 70%);
-  background-size: 220% 100%;
-  animation: shimmer 1.3s ease-in-out infinite;
-  border: 1px solid var(--line);
-}
-.loading-notice {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 16px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink-soft);
-  text-align: center;
-}
-.spinner {
-  width: 18px; height: 18px;
-  border: 2.5px solid var(--line);
-  border-top-color: var(--gold);
-  border-radius: 50%;
-  flex: 0 0 auto;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes shimmer { 0% { background-position: 140% 0; } 100% { background-position: -40% 0; } }
-@keyframes slideIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes scaleIn { from { opacity: 0; transform: scale(0.94) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-
-@media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
-  html { scroll-behavior: auto; }
-  .stamp { transform: rotate(-3deg); }
-}
-
-/* -------------------- forms (admin panels) -------------------- */
-.panel {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 24px;
-  box-shadow: var(--shadow);
-}
-label { display: block; font-size: 14px; color: var(--ink-soft); margin: 0 0 6px; font-weight: 600; }
-input[type=text], input[type=email], input[type=password], textarea, select {
-  width: 100%;
-  font-family: inherit;
-  font-size: 16px; /* 16px minimum: smaller triggers iOS Safari's auto-zoom-on-focus */
-  padding: 13px 16px;
-  border-radius: var(--radius-sm);
-  border: 1.5px solid var(--line);
-  background: #FCFBF6;
-  color: var(--ink);
-  margin-bottom: 18px;
-  transition: border-color 0.18s var(--ease), box-shadow 0.18s var(--ease), background 0.18s var(--ease);
-}
-input:focus, textarea:focus, select:focus {
-  outline: none;
-  border-color: var(--gold);
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(201,162,39,0.14);
-}
-textarea { resize: vertical; min-height: 90px; }
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 14.5px;
-  font-weight: 700;
-  padding: 13px 24px;
-  border-radius: 999px;
-  border: none;
-  cursor: pointer;
-  min-height: 44px;
-  transition: filter 0.15s var(--ease), transform 0.12s var(--ease), box-shadow 0.15s var(--ease);
-}
-.btn:active { transform: scale(0.97); }
-.btn-primary {
-  background: linear-gradient(135deg, var(--gold-bright), var(--gold));
-  color: var(--navy);
-  box-shadow: 0 6px 16px rgba(201,162,39,0.3);
-}
-.btn-primary:hover { filter: brightness(1.05); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(201,162,39,0.38); }
-.btn-outline { background: var(--card); color: var(--navy); border: 1.5px solid var(--line); }
-.btn-outline:hover { border-color: var(--navy); }
-.btn-danger { background: var(--rust-soft); color: var(--rust); }
-.btn-danger:hover { filter: brightness(0.97); }
-.btn-ghost { background: transparent; color: var(--sage); border: 1.5px solid var(--sage-soft); }
-.btn-ghost:hover { background: var(--sage-soft); }
-.btn-sm { padding: 9px 16px; font-size: 13.5px; min-height: 40px; }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
-
-/* -------------------- admin: tabs / tables / stats -------------------- */
-.tabs { display: flex; gap: 6px; margin-bottom: 22px; flex-wrap: wrap; }
-.tab-btn {
-  font-size: 14px;
-  font-weight: 600;
-  padding: 10px 18px;
-  border-radius: 999px;
-  border: 1.5px solid var(--line);
-  background: var(--card);
-  color: var(--ink-soft);
-  cursor: pointer;
-  min-height: 42px;
-  transition: background 0.18s var(--ease), color 0.18s var(--ease), border-color 0.18s var(--ease);
-}
-.tab-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
-
-.table-wrap { overflow-x: auto; border-radius: var(--radius-sm); }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th, td { text-align: right; padding: 11px 12px; border-bottom: 1px solid var(--line); }
-th { color: var(--ink-soft); font-weight: 700; font-size: 12.5px; white-space: nowrap; }
-tr { transition: background 0.12s ease; }
-tr:hover td { background: #FCFBF6; }
-td.actions { display: flex; gap: 6px; white-space: nowrap; }
-
-.stat-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
-.stat-box {
-  position: relative;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 16px 20px;
-  min-width: 130px;
-  flex: 1 1 130px;
-  overflow: hidden;
-  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
-}
-.stat-box::before { content: ''; position: absolute; top: 0; right: 0; left: 0; height: 3px; background: var(--gold); }
-.stat-box:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-.stat-box .n { font-family: 'Noto Kufi Arabic', sans-serif; font-size: 27px; color: var(--navy); font-weight: 800; }
-.stat-box .l { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
-
-.toast {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--navy);
-  color: #fff;
-  padding: 13px 24px;
-  border-radius: 999px;
-  font-size: 14px;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.22);
-  z-index: 1200;
-  animation: slideIn 0.22s var(--ease);
-}
-
-.helper-text { font-size: 13px; color: var(--ink-soft); margin: -12px 0 18px; line-height: 1.7; }
-.section-title { font-size: 15.5px; font-weight: 700; color: var(--navy); margin: 0 0 4px; }
-.section-sub { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 16px; }
-
-/* -------------------- admin overlay -------------------- */
-.admin-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--paper);
-  overflow-y: auto;
-  z-index: 400;
-  animation: fadeIn 0.2s var(--ease);
-}
-
-.login-wrap { max-width: 380px; margin: 60px auto; text-align: center; }
-.login-wrap .icon {
-  font-size: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px; height: 64px;
-  margin: 0 auto 16px;
-  background: var(--navy);
-  border-radius: 50%;
-  color: var(--gold);
-}
-
-/* -------------------- modal -------------------- */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(16, 24, 42, 0.62);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 1000;
-  animation: fadeIn 0.18s var(--ease);
-}
-.modal-box {
-  position: relative;
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 26px;
-  width: 100%;
-  max-width: 460px;
-  max-height: 88vh;
-  overflow-y: auto;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.28);
-  animation: scaleIn 0.22s var(--ease);
-}
-.modal-box h3 { margin-bottom: 18px; font-size: 17px; }
-.modal-actions { display: flex; gap: 10px; justify-content: flex-start; margin-top: 6px; }
-
-.detail-modal .modal-box { max-width: 520px; }
-.detail-eyebrow { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-.detail-title { font-size: 18.5px; color: var(--navy); line-height: 1.7; margin-bottom: 20px; font-weight: 700; }
-.detail-block { margin-bottom: 18px; }
-.detail-block .b-label { font-size: 12px; font-weight: 700; color: var(--ink-soft); margin-bottom: 6px; }
-.detail-block .b-body { font-size: 14.5px; color: var(--ink); line-height: 1.9; }
-.detail-block .b-body.unavailable { color: var(--ink-faint); font-style: italic; }
-.detail-link-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--sage);
-  color: #fff;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 700;
-  padding: 12px 22px;
-  border-radius: 999px;
-  min-height: 44px;
-  transition: filter 0.15s ease, transform 0.12s ease;
-}
-.detail-link-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
-.modal-close {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  width: 32px; height: 32px;
-  background: var(--paper);
-  border: none;
-  border-radius: 50%;
-  font-size: 16px;
-  color: var(--ink-soft);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-.modal-close:hover { background: var(--rust-soft); color: var(--rust); }
-
-/* keyboard focus visibility throughout */
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
-  outline: 2.5px solid var(--gold);
-  outline-offset: 2px;
-}
-
-/* -------------------- admin: all-database duplicate check -------------------- */
-.check-row {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 14px 16px;
-  margin-bottom: 10px;
-  background: #FCFBF6;
-  animation: slideIn 0.2s var(--ease);
-}
-.check-row-body { flex: 1 1 auto; min-width: 0; }
-.check-row-body h4 { font-size: 14.5px; margin: 0 0 4px; color: var(--navy); line-height: 1.6; }
-.check-timestamp { font-size: 13px; color: var(--ink-soft); margin: 0 0 10px; font-style: italic; }
-
-.tick {
-  flex: 0 0 auto;
-  width: 30px; height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 15px;
-  margin-top: 2px;
-}
-.tick-ok { background: var(--sage-soft); color: var(--sage); }
-.tick-dup { background: var(--rust-soft); color: var(--rust); }
-
-/* -------------------- read-only PDF preview (detail modal) -------------------- */
-.pdf-frame {
-  width: 100%;
-  height: 60vh;
-  min-height: 340px;
-  max-height: 560px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  margin-top: 6px;
-  background: #FCFBF6;
-}
-.pdf-note { font-size: 12px; color: var(--ink-faint); margin: 6px 0 0; }
-
-/* -------------------- code gate (register flow) -------------------- */
-.code-gate-warn { color: var(--rust); }
-
-/* -------------------- small screens -------------------- */
-@media (max-width: 480px) {
-  .topbar-title { font-size: 16px; }
-  .check-hero { padding: 22px 18px 20px; }
-  .check-hero .lead { font-size: 14.5px; }
-  .filters select { min-width: 0; }
-  .btn { padding: 12px 18px; }
-  .page { padding: 20px 14px 60px; }
-  .panel { padding: 18px; }
-  .topic-card { padding: 28px 40px 16px 16px; }
-  .stamp { font-size: 13.5px; padding: 11px 20px; }
-}
-</style>
+        @property --border-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+        @keyframes bg-spin { to { --border-angle: 360deg; } }
+        .dynamic-border-glow {
+            position: absolute;
+            inset: -3px;
+            padding: 3px;
+            background: conic-gradient(from var(--border-angle), transparent 50%, var(--card-color) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: 0;
+            opacity: 0.45;
+            transition: opacity 0.4s ease;
+        }
+        .dark .dynamic-border-glow { opacity: 0.3; }
+        .app-card:hover .dynamic-border-glow { opacity: 1 !important; animation: bg-spin 2.5s linear infinite; }
+        </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-500 select-none overflow-hidden relative">
 
-  <div class="topbar">
-    <div class="topbar-inner">
-      <div class="topbar-brand">
-        <span class="topbar-eyebrow">زانکۆی ڕاپەرین · کۆلێژی پەروەردەی بنەڕەتی</span>
-        <span class="topbar-title">بەشی زمانی ئینگلیزی</span>
-      </div>
-      <button class="admin-toggle" id="adminToggleBtn" onclick="openAdmin()">🛡️ ئەدمین</button>
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none transition-opacity duration-1000">
+        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-300/30 dark:bg-blue-600/10 blur-[100px] animate-blob"></div>
+        <div class="absolute top-[20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-300/30 dark:bg-indigo-600/10 blur-[100px] animate-blob animation-delay-2000"></div>
+        <div class="absolute bottom-[-10%] left-[10%] w-[60%] h-[60%] rounded-full bg-cyan-300/30 dark:bg-cyan-900/20 blur-[120px] animate-blob animation-delay-4000"></div>
     </div>
-  </div>
 
-  <!-- ===================== PUBLIC: SEARCH & BROWSE ===================== -->
-  <div class="page" id="publicView">
-
-    <!-- SECTION A: check a new title before registering it -->
-    <section class="check-hero">
-      <span class="section-eyebrow">پێش تۆمارکردن</span>
-      <h1>دڵنیابە لە دووبارەنەبوونی ناونیشانەکەت</h1>
-      <p class="lead">
-        ناونیشانی نوێیەکە لێرە بنووسە — دەستبەجێ دەزانیت ئایا لەپێشدا تۆمارکراوە،
-        لێکچووە، یان بەتەواوی نوێیە، پێش ئەوەی بچیتە سیستەمی تۆمارکردن.
-      </p>
-
-      <div id="configWarning" style="display:none" class="badge-warn">
-        ⚠️ ئەم پەڕگەیە هێشتا ڕێکنەخراوە. تکایە GAS_URL لە سەرەوەی فایلی index.html زیاد بکە.
-      </div>
-
-      <div class="search-wrap" id="searchWrap">
-        <span class="search-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        </span>
-        <input type="text" id="searchBox" placeholder="چاوەڕێبە... ناونیشانەکان باردەکرێن" disabled>
-        <button type="button" class="clear-btn" id="clearSearchBtn" onclick="clearSearch()">✕</button>
-      </div>
-
-      <div id="stampArea" class="stamp-area" style="display:none;">
-        <div id="stamp" class="stamp">
-          <span class="stamp-icon" id="stampIcon"></span>
-          <span id="stampText"></span>
-        </div>
-      </div>
-      <div id="dupActions" class="dup-actions" style="display:none;"></div>
-      <div id="matchList" class="match-list"></div>
-    </section>
-
-    <!-- SECTION B: browse the whole archive -->
-    <section class="archive-section">
-      <div class="archive-head">
-        <span class="section-eyebrow">ئەرشیف</span>
-        <h2>گەڕان بەناو هەموو ناونیشانەکاندا</h2>
-      </div>
-
-      <div class="ribbon-wrap">
-        <div class="ribbon" id="ribbon"></div>
-      </div>
-
-      <div class="filters">
-        <select id="supervisorFilter"></select>
-      </div>
-
-      <p class="results-count" id="resultsCount"></p>
-      <div id="results"></div>
-    </section>
-  </div>
-
-  <!-- ===================== TOPIC DETAIL MODAL ===================== -->
-  <div id="detailModal" class="modal-overlay detail-modal" style="display:none;">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
-      <div class="detail-eyebrow">
-        <span class="tag year" id="detailYear"></span>
-        <span class="tag" id="detailSupervisor"></span>
-      </div>
-      <div class="detail-title" id="detailTitle"></div>
-
-      <div class="detail-block">
-        <div class="b-label">پوختە</div>
-        <div class="b-body" id="detailAbstract"></div>
-      </div>
-
-      <div class="detail-block" id="detailLinkBlock"></div>
-      <div class="detail-block" id="detailCloseTopics"></div>
-    </div>
-  </div>
-
-  <!-- ===================== ADMIN OVERLAY ===================== -->
-  <div id="adminOverlay" class="admin-overlay" style="display:none;">
-    <div class="page">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-        <button class="btn btn-outline btn-sm" onclick="closeAdmin()">→ گەڕانەوە بۆ گەڕان</button>
-        <button class="btn btn-outline btn-sm" id="logoutBtn" style="display:none;" onclick="logout()">دەرچوون</button>
-      </div>
-
-      <!-- LOGIN -->
-      <div id="loginView" class="login-wrap" style="display:none;">
-        <span class="icon">🛡️</span>
-        <h2 style="font-size:19px;margin-bottom:6px;">چوونەژوورەوەی ئەدمین</h2>
-        <p class="lead" style="margin:0 auto 20px;color:var(--ink-soft);font-size:14.5px;">وشەی نهێنی بنووسە بۆ بەڕێوەبردنی مامۆستایان و ناونیشانەکان</p>
-        <div class="panel" style="text-align:right;">
-          <label for="pwInput">وشەی نهێنی</label>
-          <input type="password" id="pwInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
-          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="login()">چوونەژوورەوە</button>
-          <p id="loginMsg" class="helper-text" style="margin-top:12px;"></p>
-        </div>
-      </div>
-
-      <!-- DASHBOARD -->
-      <div id="dashView" style="display:none;">
-        <h1 style="font-size:22px;margin-top:18px;">ئەدمین</h1>
-
-        <div class="tabs" style="margin-top:16px;">
-          <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">پوختەی گشتی</button>
-          <button class="tab-btn" data-tab="topics" onclick="switchTab('topics')">ناونیشانەکان</button>
-          <button class="tab-btn" data-tab="teachers" onclick="switchTab('teachers')">مامۆستایان و ناردنی بەستەر</button>
-          <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">ڕێکخستنەکان</button>
-        </div>
-
-        <!-- OVERVIEW -->
-        <div id="tab-overview" class="tab-panel">
-          <div class="stat-row" id="statRow"></div>
-          <div class="panel">
-            <div class="section-title">ژمارەی ناونیشان بەپێی سەرپەرشتیار</div>
-            <div class="section-sub">١٠ی سەرەوە</div>
-            <div class="table-wrap"><table id="supervisorStatsTable"></table></div>
-          </div>
-        </div>
-
-        <!-- TOPICS -->
-        <div id="tab-topics" class="tab-panel" style="display:none;">
-          <div class="panel" style="margin-bottom:20px;">
-            <div class="section-title">زیادکردنی کۆمەڵە ناونیشانی ساڵانی ڕابردوو</div>
-            <div class="section-sub">هەر ڕیزێک ناونیشانێک — بەم شێوەیە: ناونیشان | ساڵ | سەرپەرشتیار | بەستەری توێژینەوە (دڵخوازی) | پوختە (دڵخوازی)</div>
-            <textarea id="bulkTopics" placeholder="کاریگەری یاری کۆمەڵایەتی لەسەر پەرەسەندنی زمان | 2022-2023 | ئاڵا ئەحمەد&#10;بەکارهێنانی چیرۆک بۆ فێرکردنی ئارستایی | 2023-2024 | سارا کەریم" style="min-height:110px;"></textarea>
-            <button class="btn btn-primary btn-sm" onclick="bulkAddTopics()">➕ زیادکردنیان</button>
-            <span id="bulkTopicsMsg" class="helper-text" style="display:inline-block;margin-right:10px;"></span>
-          </div>
-
-          <div class="panel" style="margin-bottom:20px;">
-            <div class="section-title">پشکنینی دووبارەبوونەوەی هەموو ناونیشانەکان</div>
-            <div class="section-sub">هەموو ناونیشانەکانی تۆمارکراو بەیەکتری بەراورد دەکات — ئەگەر ڕێژەی لێکچوونی زیاتر لە <span id="dupThresholdHint">٪85</span> لەگەڵ ناونیشانێکی تر هەبێت وەک گومانلێکراو بە دووبارە نیشان دەدرێت. (دەتوانیت ئەم ڕێژانە بگۆڕیت لە تابی «ڕێکخستنەکان»)</div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-              <button class="btn btn-primary btn-sm" onclick="runDuplicateCheck()">🔍 دەستپێکردنی پشکنین</button>
-              <button class="btn btn-outline btn-sm" id="exportCheckPdfBtn" style="display:none;" onclick="exportCheckAsPDF()">⬇ دەرهێنان وەک PDF</button>
-              <button class="btn btn-outline btn-sm" id="exportCheckWordBtn" style="display:none;" onclick="exportCheckAsWord()">⬇ دەرهێنان وەک Word</button>
+    <div id="splash-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/80 dark:bg-[#050B14]/90 backdrop-blur-3xl transition-all duration-1000 px-6 text-center">
+        <div class="relative flex flex-col items-center max-w-lg">
+            <div class="w-24 h-24 rounded-[2rem] overflow-hidden bg-white border-2 border-white dark:border-slate-800 shadow-2xl mb-6 animate-logo-glow opacity-0 animate-fade-in-up">
+                <img src="Icon23.png" alt="Dept Logo" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%232563eb\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M22 10v6M2 10l10-5 10 5-10 5z\'/><path d=\'M6 12v5c3 3 9 3 12 0v-5\'/></svg>'">
             </div>
-            <div id="checkReportArea" style="margin-top:16px;"></div>
-          </div>
-
-          <div class="filters">
-            <div class="search-wrap" style="flex:1 1 280px;"><input type="text" id="topicSearch" placeholder="🔎 گەڕان..." oninput="renderTopicsTable()" style="border-radius:var(--radius-sm);padding:13px 16px;"></div>
-            <select id="topicYearFilter" onchange="renderTopicsTable()"></select>
-          </div>
-
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>ناونیشان</th><th>ساڵ</th><th>سەرپەرشتیار</th><th>پوختە</th><th>بەستەر</th><th>کردار</th></tr></thead>
-              <tbody id="topicsTableBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- TEACHERS -->
-        <div id="tab-teachers" class="tab-panel" style="display:none;">
-          <div class="panel" style="margin-bottom:20px;">
-            <div class="section-title">زیادکردنی مامۆستایان بەکۆمەڵ</div>
-            <div class="section-sub">هەر ڕیزێک: ناو | ئیمەیل</div>
-            <textarea id="bulkTeachers" placeholder="ئاڵا ئەحمەد | ala.ahmad@uor.edu.krd&#10;سارا کەریم | sara.karim@uor.edu.krd" style="min-height:100px;"></textarea>
-            <button class="btn btn-primary btn-sm" onclick="bulkAddTeachers()">➕ زیادکردنیان</button>
-            <span id="bulkTeachersMsg" class="helper-text" style="display:inline-block;margin-right:10px;"></span>
-          </div>
-
-          <div class="panel" style="margin-bottom:20px;">
-            <div class="section-title">ناردنی بەستەر بۆ مامۆستایان</div>
-            <div class="section-sub">مامۆستایان هەڵبژێرە و بەستەرەکەیان بۆ بنێرە — ناردن بۆ هەریەکە یان بۆ هەموویان</div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <button class="btn btn-primary btn-sm" onclick="sendInvites('selected')">✉️ ناردن بۆ هەڵبژێردراوەکان</button>
-              <button class="btn btn-outline btn-sm" onclick="sendInvites('all')">✉️ ناردن بۆ هەمووان</button>
+            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-800 dark:text-white mb-2 tracking-tight opacity-0 animate-fade-in-up delay-500">University of Raparin</h1>
+            <div class="mt-8 space-y-4 opacity-0 animate-fade-in-up delay-1000">
+                <p class="text-sm md:text-base text-slate-600 dark:text-slate-300 font-medium leading-relaxed px-4">Welcome to the Official Digital Services Platform of the English Language Department.</p>
+                <div class="w-12 h-[1px] bg-slate-300 dark:bg-slate-700 mx-auto"></div>
+                <p class="text-sm md:text-base text-slate-600 dark:text-slate-300 font-kurdish leading-relaxed px-4" dir="rtl">بەخێربێن بۆ پلاتفۆرمی فەرمی خزمەتگوزارییە دیجیتاڵییەکانی بەشی زمانی ئینگلیزی.</p>
             </div>
-            <p id="inviteMsg" class="helper-text" style="margin-top:12px;"></p>
-          </div>
-
-          <div class="table-wrap">
-            <table>
-              <thead><tr>
-                <th><input type="checkbox" id="selectAllTeachers" onchange="toggleSelectAll(this)"></th>
-                <th>No</th><th>ناو</th><th>ئیمەیل</th><th>کۆد</th><th>کردار</th>
-              </tr></thead>
-              <tbody id="teachersTableBody"></tbody>
-            </table>
-          </div>
+            <div class="mt-12 w-56 h-1.5 bg-slate-200/50 dark:bg-slate-800/50 rounded-full overflow-hidden shadow-inner opacity-0 animate-fade-in-up delay-1500">
+                <div class="h-full bg-gradient-to-r from-brand-400 to-indigo-500 rounded-full animate-progress"></div>
+            </div>
         </div>
+    </div>
 
-        <!-- SETTINGS -->
-        <div id="tab-settings" class="tab-panel" style="display:none;">
-          <div class="panel">
-            <div class="section-title">ڕێکخستنی گشتی</div>
-            <label for="setYear">ساڵی خوێندنی ئێستا</label>
-            <input type="text" id="setYear" placeholder="2026-2027">
-            <label for="setAppUrl">بەستەری ئەم سیستەمە (بۆ ناردن بە ئیمەیل)</label>
-            <input type="text" id="setAppUrl" placeholder="https://username.github.io/repo/index.html">
-            <label for="setRegisterUrl">بەستەری سیستەمی تۆمارکردنی ناونیشانی نوێ (ئارەزوومەندانە)</label>
-            <input type="text" id="setRegisterUrl" placeholder="https://...">
-            <label for="setNewPw">گۆڕینی وشەی نهێنی (بەتاڵی بهێڵەوە ئەگەر نایەوێت بگۆڕدرێت)</label>
-            <input type="password" id="setNewPw" placeholder="••••••••">
-            <button class="btn btn-primary" onclick="saveSettings()">پاشەکەوتکردن</button>
-            <p id="settingsMsg" class="helper-text" style="margin-top:12px;"></p>
-          </div>
-
-          <div class="panel" style="margin-top:20px;">
-            <div class="section-title">ڕێژەی هەستیاریی پشکنینی دووبارەبوونەوە</div>
-            <div class="section-sub">ئەم ڕێژانە کاریگەرن لەسەر هەردوو پشکنین: گەڕانی گشتی و پشکنینی گشتیی ئەدمین. دەتوانیت بەپێی پێویست بەرزیان بکەیتەوە یان دابەزێنیت.</div>
-            <label for="setDupThreshold">ڕێژەی "دووبارەیە" (٪)</label>
-            <input type="number" id="setDupThreshold" min="1" max="100" placeholder="85">
-            <label for="setSimThreshold">ڕێژەی "لێکچووی هەیە" (٪)</label>
-            <input type="number" id="setSimThreshold" min="1" max="100" placeholder="50">
-            <button class="btn btn-primary" onclick="saveThresholds()">پاشەکەوتکردنی ڕێژەکان</button>
-            <p id="thresholdMsg" class="helper-text" style="margin-top:12px;"></p>
-          </div>
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden">
+        <div class="bg-slate-900/90 dark:bg-white/90 backdrop-blur-xl border border-white/10 text-white dark:text-slate-900 px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 font-medium text-sm">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-green-400 dark:text-green-500"></i>
+            <span id="toast-msg">Action successful</span>
         </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Topic edit modal -->
-  <div id="topicModal" class="modal-overlay" style="display:none;">
-    <div class="modal-box">
-      <h3>دەستکاریکردنی ناونیشان</h3>
-      <label>ناونیشان</label>
-      <input type="text" id="editTopicTitle">
-      <label>ساڵی خوێندن</label>
-      <input type="text" id="editTopicYear">
-      <label>سەرپەرشتیار</label>
-      <input type="text" id="editTopicSupervisor">
-      <label>بەستەری توێژینەوە (تەنها ID فایلەکەی گووگڵ درایڤ، یان بەستەری تەواو)</label>
-      <input type="text" id="editTopicLink" placeholder="بۆ نموونە: 1A2B3C4D5E6F7G8H... یان بەستەری تەواو">
-      <label>پوختە</label>
-      <textarea id="editTopicAbstract"></textarea>
-      <div class="modal-actions">
-        <button class="btn btn-primary btn-sm" onclick="saveTopicEdit()">پاشەکەوتکردن</button>
-        <button class="btn btn-outline btn-sm" onclick="closeModal('topicModal')">پاشگەزبوونەوە</button>
-      </div>
-    </div>
-  </div>
+    <header class="sticky top-0 z-40 glass-header">
+        <div class="px-4 py-3.5 flex justify-between items-center max-w-5xl mx-auto w-full">
+            <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-2xl overflow-hidden shadow-sm bg-white border border-slate-200/50 dark:border-slate-700/50 flex-shrink-0">
+                    <img src="Icon23.png" alt="Dept Logo" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%232563eb\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M22 10v6M2 10l10-5 10 5-10 5z\'/><path d=\'M6 12v5c3 3 9 3 12 0v-5\'/></svg>'">
+                </div>
+                <div class="flex flex-col">
+                    <h1 class="text-[14px] font-extrabold leading-tight tracking-tight dark:text-white">University of Raparin</h1>
+                    <h2 class="text-[11px] font-medium text-slate-500 dark:text-slate-400 leading-tight mt-0.5">College of Basic Education</h2>
+                    <h3 class="text-[11px] font-bold text-brand-600 dark:text-brand-400 leading-tight mt-0.5">English Language Dept</h3>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button id="installBtn" onclick="installApp()" class="hidden w-10 h-10 rounded-full bg-brand-600 hover:bg-brand-500 text-white flex items-center justify-center transition-all active:scale-90 shadow-sm border border-brand-500/30">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                </button>
+                
+                <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all active:scale-90 shadow-sm border border-slate-200/50 dark:border-slate-700/50">
+                    <i data-lucide="moon" id="theme-icon-moon" class="w-5 h-5 hidden dark:block"></i>
+                    <i data-lucide="sun" id="theme-icon-sun" class="w-5 h-5 block dark:hidden"></i>
+                </button>
+            </div>
+        </div>
+    </header>
 
-  <!-- Teacher edit modal -->
-  <div id="teacherModal" class="modal-overlay" style="display:none;">
-    <div class="modal-box">
-      <h3>دەستکاریکردنی مامۆستا</h3>
-      <label>ناو</label>
-      <input type="text" id="editTeacherName">
-      <label>ئیمەیل</label>
-      <input type="email" id="editTeacherEmail">
-      <label>کۆدی تایبەت</label>
-      <input type="text" id="editTeacherCode" style="text-transform:uppercase;letter-spacing:1px;" placeholder="بەتاڵی بهێڵەوە بۆ دروستکردنی خۆکار لە کاتی ناردنی بەستەر">
-      <p class="helper-text" style="margin:-12px 0 4px;">ئەگەر بەتاڵ بهێڵدرێتەوە و پاشەکەوت بکرێت، جاری داهاتوو کە بەستەر بۆ ئەم مامۆستایە دەنێردرێت کۆدێکی نوێ خۆکارانە دروستدەکرێت.</p>
-      <div class="modal-actions">
-        <button class="btn btn-primary btn-sm" onclick="saveTeacherEdit()">پاشەکەوتکردن</button>
-        <button class="btn btn-outline btn-sm" onclick="closeModal('teacherModal')">پاشگەزبوونەوە</button>
-      </div>
-    </div>
-  </div>
+    <main class="flex-grow px-4 pb-12 max-w-5xl mx-auto w-full flex flex-col gap-8 pt-6">
+        <section class="relative z-10 max-w-2xl mx-auto flex w-full gap-3">
+            <div class="relative group flex-grow">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <i data-lucide="search" class="w-5 h-5 text-slate-400 dark:text-slate-500 group-focus-within:text-brand-500 dark:group-focus-within:text-brand-400 transition-colors"></i>
+                </div>
+                <input type="text" id="search-input" placeholder="Search applications..." 
+                    class="block w-full pl-13 pr-6 py-4 search-glass border border-slate-200/60 dark:border-slate-700/60 rounded-3xl text-base font-medium shadow-lg focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 dark:focus:ring-brand-400/50 dark:focus:border-brand-400 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 dark:text-white"
+                    onkeyup="filterApps()">
+            </div>
+            
+            <!-- Compact view toggle button -->
+            <button onclick="toggleViewMode()" title="Toggle Compact View" class="flex-shrink-0 w-[58px] h-[58px] rounded-3xl search-glass border border-slate-200/60 dark:border-slate-700/60 shadow-lg flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-all active:scale-90">
+                <i data-lucide="layout-grid" id="view-toggle-icon" class="w-6 h-6"></i>
+            </button>
+        </section>
 
-  <!-- Reminder shown before sending a teacher on to the external topic-registration system. This is an attention/alert message only — it does not check or require the code, it just reminds the teacher to have it ready and to double-check their topics first. -->
-  <div id="codeGateModal" class="modal-overlay" style="display:none;">
-    <div class="modal-box">
-      <h3>پێش چوونە سیستەمی تۆمارکردن</h3>
-      <p class="lead" style="font-size:14px;line-height:1.85;margin:0 0 18px;">
-        کۆدی تایبەتیت کە بە ئیمەیلی زانکۆییەکەتەوە بۆت نێردراوە لەلای خۆت هەبێت، چونکە لە سیستەمی تۆمارکردندا پێویستت پێی دەبێت.
-        دڵنیابەرەوە کە پێش ناردن هەموو بابەتەکانت پشکنیوتە و دڵنیایت لە نوێبوونیان —
-        <strong class="code-gate-warn">دوای ناردن ناتوانیت هەڵیبوەشێنیتەوە یان بیگۆڕیت.</strong>
-      </p>
-      <div class="modal-actions">
-        <button class="btn btn-outline btn-sm" onclick="closeModal('codeGateModal')">🔙 گەڕانەوە بۆ گەڕان</button>
-        <button class="btn btn-primary btn-sm" onclick="proceedToRegister()">بەردەوامبوون بۆ تۆمارکردن ⟵</button>
-      </div>
-    </div>
-  </div>
+        <!-- Container for dynamically injected apps -->
+        <section id="apps-container" class="pb-6 relative">
+            <!-- Apps rendered via JS -->
+        </section>
+    </main>
 
-  <div id="toastHost"></div>
+    <footer class="mt-auto py-8 text-center text-[11px] sm:text-xs text-slate-400 dark:text-slate-500 font-medium relative z-10 border-t border-slate-200/50 dark:border-slate-800/50 space-y-1">
+        <p>© 2026 University of Raparin</p>
+        <p>College of Basic Education • English Language Department</p>
+        <p class="text-[10px] opacity-75">Version 1.1.0</p>
+    </footer>
 
-  <!-- Used only by the admin "check topics" report export (PDF/Word) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-  <script>
-    // ============================================================
-    // CONFIG — edit GAS_URL below after you deploy the Apps Script
-    // web app (Deploy → New deployment → Web app → copy the /exec URL).
-    // Everything (config, API layer, matching logic, and app logic)
-    // now lives in this one file — nothing else to keep in sync.
-    // ============================================================
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzSsbSSto6Xxt7aptSIjvgqj51RhZdp-BQTVXZHZwPwCh-wV-Z8UvGrzcDOFDvGZ9pW/exec';
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5rV_gF7HgjGcx7x9l2MbhMisT-gpytYTWsgt9Hu-DuYlARA1Br_IGUC_QX43lNX6goaXqX3RQRpD4/pub?output=csv&sheet=Topics';
-
-    // ============================================================
-    // API layer — timeout + one safe retry on GET (read-only) calls
-    // ============================================================
-    const REQUEST_TIMEOUT_MS = 20000;
-    function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-    async function fetchWithTimeout(url, options) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-      try {
-        return await fetch(url, { ...options, signal: controller.signal });
-      } catch (err) {
-        if (err.name === 'AbortError') {
-          throw new Error('کاتی چاوەڕوانی تەواو بوو — تکایە دووبارە هەوڵبدەرەوە');
+<script>
+    const appsData = [         
+        { id: 101, titleEn: "English General Info", titleKu: "زانیاری خوێندکاران و ستاف", desc: "General department information and staff directory.", icon: "info", url: "https://english-uor.github.io/RegistryV2/",             colors: {                 cardStyle: "bg-pink-100/70 border-pink-300 hover:border-pink-500 dark:bg-pink-950/40 dark:border-pink-800/50 dark:hover:bg-pink-900/60 dark:hover:border-pink-500/70",                 glow: "bg-pink-500/30 dark:bg-pink-500/40 group-hover:bg-pink-400/60",                 iconBox: "bg-white dark:bg-pink-900/60 border-pink-200 dark:border-pink-700/50",                 icon: "text-pink-600 dark:text-pink-400", title: "text-pink-900 dark:text-pink-100", subtitle: "text-pink-700 dark:text-pink-300/90", desc: "text-pink-800 dark:text-pink-200/80", divider: "border-pink-200/80 dark:border-pink-800/60",                 btnBox: "bg-pink-200/60 dark:bg-pink-900/40 group-hover/btn:bg-pink-300 dark:group-hover/btn:bg-pink-700/80 border-transparent dark:border-pink-800/30", btnText: "text-pink-700 dark:text-pink-300 group-hover/btn:text-pink-900 dark:group-hover/btn:text-pink-100"             }         },         
+        { id: 102, titleEn: "Teachers Portal", titleKu: "پۆرتاڵی مامۆستایان", desc: "Access the academic portal for grading and rosters.", icon: "briefcase", url: "https://english-uor.github.io/Teacher-Student/", colors: { cardStyle: "bg-white/70 border-white/60 hover:border-slate-400 dark:bg-slate-900/30 dark:border-slate-800/40 dark:hover:bg-slate-800/50 dark:hover:border-slate-500/60", glow: "bg-slate-500/20 dark:bg-slate-500/30 group-hover:bg-slate-400/40", iconBox: "bg-white dark:bg-slate-800/60 border-slate-100 dark:border-slate-700/50", icon: "text-slate-600 dark:text-slate-400", title: "text-slate-800 dark:text-slate-50", subtitle: "text-slate-500 dark:text-slate-300/80", desc: "text-slate-600 dark:text-slate-100/70", divider: "border-slate-200/60 dark:border-slate-800/50", btnBox: "bg-slate-100/80 dark:bg-slate-800/40 group-hover/btn:bg-slate-200 dark:group-hover/btn:bg-slate-700/80 border-transparent dark:border-slate-800/30", btnText: "text-slate-600 dark:text-slate-300 group-hover/btn:text-slate-900 dark:group-hover/btn:text-slate-100" } },
+        { id: 103, titleEn: "Student Portal", titleKu: "پۆرتاڵی خوێندکاران", desc: "Access the academic portal for grades and schedules.", icon: "graduation-cap", url: "https://english-uor.github.io/Students-V1/", colors: { cardStyle: "bg-white/70 border-white/60 hover:border-sky-300 dark:bg-sky-950/30 dark:border-sky-800/40 dark:hover:bg-sky-900/50 dark:hover:border-sky-500/60", glow: "bg-sky-500/20 dark:bg-sky-500/30 group-hover:bg-sky-400/40", iconBox: "bg-white dark:bg-sky-900/60 border-slate-100 dark:border-sky-700/50", icon: "text-sky-500 dark:text-sky-400", title: "text-slate-800 dark:text-sky-50", subtitle: "text-slate-500 dark:text-sky-300/80", desc: "text-slate-600 dark:text-sky-100/70", divider: "border-slate-200/60 dark:border-sky-800/50", btnBox: "bg-slate-100/80 dark:bg-sky-900/40 group-hover/btn:bg-sky-100 dark:group-hover/btn:bg-sky-700/80 border-transparent dark:border-sky-800/30", btnText: "text-slate-600 dark:text-sky-300 group-hover/btn:text-sky-600 dark:group-hover/btn:text-sky-100" } },
+        { id: 1, titleEn: "Attendance Portal", titleKu: "پۆڕتاڵی ئامادەبوون (غیابات)", desc: "Manage attendance and absence records.", icon: "calendar-check", url: "https://english-uor.github.io/attendance/", colors: { cardStyle: "bg-white/70 border-white/60 hover:border-rose-300 dark:bg-rose-950/30 dark:border-rose-800/40 dark:hover:bg-rose-900/50 dark:hover:border-rose-500/60", glow: "bg-rose-500/20 dark:bg-rose-500/30 group-hover:bg-rose-400/40", iconBox: "bg-white dark:bg-rose-900/60 border-slate-100 dark:border-rose-700/50", icon: "text-rose-500 dark:text-rose-400", title: "text-slate-800 dark:text-rose-50", subtitle: "text-slate-500 dark:text-rose-300/80", desc: "text-slate-600 dark:text-rose-100/70", divider: "border-slate-200/60 dark:border-rose-800/50", btnBox: "bg-slate-100/80 dark:bg-rose-900/40 group-hover/btn:bg-rose-100 dark:group-hover/btn:bg-rose-700/80 border-transparent dark:border-rose-800/30", btnText: "text-slate-600 dark:text-rose-300 group-hover/btn:text-rose-600 dark:group-hover/btn:text-rose-100" } },
+        { id: 2, titleEn: "Research Library", titleKu: "کتێبخانەی توێژینەوە", desc: "Access departmental research resources.", icon: "library", url: "https://english-uor.github.io/Library/", colors: { cardStyle: "bg-white/70 border-white/60 hover:border-emerald-300 dark:bg-emerald-950/30 dark:border-emerald-800/40 dark:hover:bg-emerald-900/50 dark:hover:border-emerald-500/60", glow: "bg-emerald-500/20 dark:bg-emerald-500/30 group-hover:bg-emerald-400/40", iconBox: "bg-white dark:bg-emerald-900/60 border-slate-100 dark:border-emerald-700/50", icon: "text-emerald-500 dark:text-emerald-400", title: "text-slate-800 dark:text-emerald-50", subtitle: "text-slate-500 dark:text-emerald-300/80", desc: "text-slate-600 dark:text-emerald-100/70", divider: "border-slate-200/60 dark:border-emerald-800/50", btnBox: "bg-slate-100/80 dark:bg-emerald-900/40 group-hover/btn:bg-emerald-100 dark:group-hover/btn:bg-emerald-700/80 border-transparent dark:border-emerald-800/30", btnText: "text-slate-600 dark:text-emerald-300 group-hover/btn:text-emerald-600 dark:group-hover/btn:text-emerald-100" } },
+        { id: 3, titleEn: "Trainer Evaluation (Q4)", titleKu: "هەڵسەنگاندنی ڕاهێنەران (ق٤)", desc: "Training evaluation system.", icon: "award", url: "https://english-uor.github.io/Training/", colors: { cardStyle: "bg-white/70 border-white/60 hover:border-amber-300 dark:bg-amber-950/30 dark:border-amber-800/40 dark:hover:bg-amber-900/50 dark:hover:border-amber-500/60", glow: "bg-amber-500/20 dark:bg-amber-500/30 group-hover:bg-amber-400/40", iconBox: "bg-white dark:bg-amber-900/60 border-slate-100 dark:border-amber-700/50", icon: "text-amber-500 dark:text-amber-400", title: "text-slate-800 dark:text-amber-50", subtitle: "text-slate-500 dark:text-amber-300/80", desc: "text-slate-600 dark:text-amber-100/70", divider: "border-slate-200/60 dark:border-amber-800/50", btnBox: "bg-slate-100/80 dark:bg-amber-900/40 group-hover/btn:bg-amber-100 dark:group-hover/btn:bg-amber-700/80 border-transparent dark:border-amber-800/30", btnText: "text-slate-600 dark:text-amber-300 group-hover/btn:text-amber-600 dark:group-hover/btn:text-amber-100" } },
+        { id: 4, titleEn: "Research Evaluation", titleKu: "هەڵسەنگاندنی توێژینەوە", desc: "Evaluate research projects.", icon: "microscope", url: "https://english-uor.github.io/research-evaluation/", colors: { cardStyle: "bg-white/70 border-white/60 hover:border-purple-300 dark:bg-purple-950/30 dark:border-purple-800/40 dark:hover:bg-purple-900/50 dark:hover:border-purple-500/60", glow: "bg-purple-500/20 dark:bg-purple-500/30 group-hover:bg-purple-400/40", iconBox: "bg-white dark:bg-purple-900/60 border-slate-100 dark:border-purple-700/50", icon: "text-purple-500 dark:text-purple-400", title: "text-slate-800 dark:text-purple-50", subtitle: "text-slate-500 dark:text-purple-300/80", desc: "text-slate-600 dark:text-purple-100/70", divider: "border-slate-200/60 dark:border-purple-800/50", btnBox: "bg-slate-100/80 dark:bg-purple-900/40 group-hover/btn:bg-purple-100 dark:group-hover/btn:bg-purple-700/80 border-transparent dark:border-purple-800/30", btnText: "text-slate-600 dark:text-purple-300 group-hover/btn:text-purple-600 dark:group-hover/btn:text-purple-100" } },
+        { id: 5, titleEn: "Topic Selection", titleKu: "دیاریکردنی توێژینەوە", desc: "Students select research topics.", icon: "list-checks", url: "https://english-uor.github.io/Topic-distribution/", colors: { cardStyle: "bg-white/70 border-white/60 hover:border-cyan-300 dark:bg-cyan-950/30 dark:border-cyan-800/40 dark:hover:bg-cyan-900/50 dark:hover:border-cyan-500/60", glow: "bg-cyan-500/20 dark:bg-cyan-500/30 group-hover:bg-cyan-400/40", iconBox: "bg-white dark:bg-cyan-900/60 border-slate-100 dark:border-cyan-700/50", icon: "text-cyan-500 dark:text-cyan-400", title: "text-slate-800 dark:text-cyan-50", subtitle: "text-slate-500 dark:text-cyan-300/80", desc: "text-slate-600 dark:text-cyan-100/70", divider: "border-slate-200/60 dark:border-cyan-800/50", btnBox: "bg-slate-100/80 dark:bg-cyan-900/40 group-hover/btn:bg-cyan-100 dark:group-hover/btn:bg-cyan-700/80 border-transparent dark:border-cyan-800/30", btnText: "text-slate-600 dark:text-cyan-300 group-hover/btn:text-cyan-600 dark:group-hover/btn:text-cyan-100" } },
+        { id: 6, titleEn: "Course Distribution", titleKu: "دابەشکردنی وانەکان", desc: "Course allocation and scheduling.", icon: "layout-template", url: "https://english-uor.github.io/english.subjects/", colors: { cardStyle: "bg-white/70 border-white/60 hover:border-blue-300 dark:bg-blue-950/30 dark:border-blue-800/40 dark:hover:bg-blue-900/50 dark:hover:border-blue-500/60", glow: "bg-blue-500/20 dark:bg-blue-500/30 group-hover:bg-blue-400/40", iconBox: "bg-white dark:bg-blue-900/60 border-slate-100 dark:border-blue-700/50", icon: "text-blue-500 dark:text-blue-400", title: "text-slate-800 dark:text-blue-50", subtitle: "text-slate-500 dark:text-blue-300/80", desc: "text-slate-600 dark:text-blue-100/70", divider: "border-slate-200/60 dark:border-blue-800/50", btnBox: "bg-slate-100/80 dark:bg-blue-900/40 group-hover/btn:bg-blue-100 dark:group-hover/btn:bg-blue-700/80 border-transparent dark:border-blue-800/30", btnText: "text-slate-600 dark:text-blue-300 group-hover/btn:text-blue-600 dark:group-hover/btn:text-blue-100" } },
+        { id: 7, titleEn: "Forms Center", titleKu: "فۆڕمەکان", desc: "Department forms and documents.", icon: "file-text", url: "https://english-uor.github.io/Forms/", colors: { cardStyle: "bg-white/70 border-white/60 hover:border-violet-300 dark:bg-violet-950/30 dark:border-violet-800/40 dark:hover:bg-violet-900/50 dark:hover:border-violet-500/60", glow: "bg-violet-500/20 dark:bg-violet-500/30 group-hover:bg-violet-400/40", iconBox: "bg-white dark:bg-violet-900/60 border-slate-100 dark:border-violet-700/50", icon: "text-violet-500 dark:text-violet-400", title: "text-slate-800 dark:text-violet-50", subtitle: "text-slate-500 dark:text-violet-300/80", desc: "text-slate-600 dark:text-violet-100/70", divider: "border-slate-200/60 dark:border-violet-800/50", btnBox: "bg-slate-100/80 dark:bg-violet-900/40 group-hover/btn:bg-violet-100 dark:group-hover/btn:bg-violet-700/80 border-transparent dark:border-violet-800/30", btnText: "text-slate-600 dark:text-violet-300 group-hover/btn:text-violet-600 dark:group-hover/btn:text-violet-100" } },
+        { id: 8, titleEn: "Holidays & Occasions", titleKu: "پشوو و بۆنە فەرمییەکان", desc: "Official calendar, holidays, and national commemorative occasions.", icon: "calendar-days", url: "holidays.html", colors: { cardStyle: "bg-white/70 border-white/60 hover:border-indigo-300 dark:bg-indigo-950/30 dark:border-indigo-800/40 dark:hover:bg-indigo-900/50 dark:hover:border-indigo-500/60", glow: "bg-indigo-500/20 dark:bg-indigo-500/30 group-hover:bg-indigo-400/40", iconBox: "bg-white dark:bg-indigo-900/60 border-slate-100 dark:border-indigo-700/50", icon: "text-indigo-500 dark:text-indigo-400", title: "text-slate-800 dark:text-indigo-50", subtitle: "text-slate-500 dark:text-indigo-300/80", desc: "text-slate-600 dark:text-indigo-100/70", divider: "border-slate-200/60 dark:border-indigo-800/50", btnBox: "bg-slate-100/80 dark:bg-indigo-900/40 group-hover/btn:bg-indigo-100 dark:group-hover/btn:bg-indigo-700/80 border-transparent dark:border-indigo-800/30", btnText: "text-slate-600 dark:text-indigo-300 group-hover/btn:text-indigo-600 dark:group-hover/btn:text-indigo-100" } },
+        { id: 9, titleEn: "ECTS Calculator", titleKu: "هەژمارکەری ECTS", desc: "Calculate ECTS credits and academic grades.", icon: "calculator", url: "https://english-uor.github.io/ECTS-Calculator/", colors: { cardStyle: "bg-white/70 border-white/60 hover:border-teal-300 dark:bg-teal-950/30 dark:border-teal-800/40 dark:hover:bg-teal-900/50 dark:hover:border-teal-500/60", glow: "bg-teal-500/20 dark:bg-teal-500/30 group-hover:bg-teal-400/40", iconBox: "bg-white dark:bg-teal-900/60 border-slate-100 dark:border-teal-700/50", icon: "text-teal-500 dark:text-teal-400", title: "text-slate-800 dark:text-teal-50", subtitle: "text-slate-500 dark:text-teal-300/80", desc: "text-slate-600 dark:text-teal-100/70", divider: "border-slate-200/60 dark:border-teal-800/50", btnBox: "bg-slate-100/80 dark:bg-teal-900/40 group-hover/btn:bg-teal-100 dark:group-hover/btn:bg-teal-700/80 border-transparent dark:border-teal-800/30", btnText: "text-slate-600 dark:text-teal-300 group-hover/btn:text-teal-600 dark:group-hover/btn:text-teal-100" } },
+        { id: 10, titleEn: "Topic Submission", titleKu: "پێشکەشکردنی توێژینەوە", desc: "Teachers submit graduation research topics.", icon: "book-plus", url: "https://english-uor.github.io/uor-research-topics/", colors: { cardStyle: "bg-white/70 border-white/60 hover:border-orange-300 dark:bg-orange-950/30 dark:border-orange-800/40 dark:hover:bg-orange-900/50 dark:hover:border-orange-500/60", glow: "bg-orange-500/20 dark:bg-orange-500/30 group-hover:bg-orange-400/40", iconBox: "bg-white dark:bg-orange-900/60 border-slate-100 dark:border-orange-700/50", icon: "text-orange-500 dark:text-orange-400", title: "text-slate-800 dark:text-orange-50", subtitle: "text-slate-500 dark:text-orange-300/80", desc: "text-slate-600 dark:text-orange-100/70", divider: "border-slate-200/60 dark:border-orange-800/50", btnBox: "bg-slate-100/80 dark:bg-orange-900/40 group-hover/btn:bg-orange-100 dark:group-hover/btn:bg-orange-700/80 border-transparent dark:border-orange-800/30", btnText: "text-slate-600 dark:text-orange-300 group-hover/btn:text-orange-600 dark:group-hover/btn:text-orange-100" } },
+        { id: 11, titleEn: "Schedules & Exams", titleKu: "خشتە و تاقیکردنیەوەکان", desc: "Access departmental class schedules and exam timelines.", icon: "calendar-clock", url: "https://english-uor.github.io/schedule-calendar-exam/", colors: { cardStyle: "bg-white/70 border-white/60 hover:border-blue-300 dark:bg-blue-950/30 dark:border-blue-800/40 dark:hover:bg-blue-900/50 dark:hover:border-blue-500/60", glow: "bg-blue-500/20 dark:bg-blue-500/30 group-hover:bg-blue-400/40", iconBox: "bg-white dark:bg-blue-900/60 border-slate-100 dark:border-blue-700/50", icon: "text-blue-500 dark:text-blue-400", title: "text-slate-800 dark:text-blue-50", subtitle: "text-slate-500 dark:text-blue-300/80", desc: "text-slate-600 dark:text-blue-100/70", divider: "border-slate-200/60 dark:border-blue-800/50", btnBox: "bg-slate-100/80 dark:bg-blue-900/40 group-hover/btn:bg-blue-100 dark:group-hover/btn:bg-blue-700/80 border-transparent dark:border-blue-800/30", btnText: "text-slate-600 dark:text-blue-300 group-hover/btn:text-blue-600 dark:group-hover/btn:text-blue-100" } },
+        { id: 12, titleEn: "Statistics Portal", titleKu: "پۆرتاڵی ئامارەکان", desc: "View department growth metrics and academic charts.", icon: "bar-chart-3", url: "https://english-uor.github.io/statistics/", colors: { cardStyle: "bg-white/70 border-white/60 hover:border-teal-300 dark:bg-teal-950/30 dark:border-teal-800/40 dark:hover:bg-teal-900/50 dark:hover:border-teal-500/60", glow: "bg-teal-500/20 dark:bg-teal-500/30 group-hover:bg-teal-400/40", iconBox: "bg-white dark:bg-teal-900/60 border-slate-100 dark:border-teal-700/50", icon: "text-teal-500 dark:text-teal-400", title: "text-slate-800 dark:text-teal-50", subtitle: "text-slate-500 dark:text-teal-300/80", desc: "text-slate-600 dark:text-teal-100/70", divider: "border-slate-200/60 dark:border-slate-800/50", btnBox: "bg-slate-100/80 dark:bg-teal-900/40 group-hover/btn:bg-teal-100 dark:group-hover/btn:bg-teal-700/80 border-transparent dark:border-teal-800/30", btnText: "text-slate-600 dark:text-teal-300 group-hover/btn:text-teal-600 dark:group-hover/btn:text-teal-100" } },
+        {
+            id: 13, titleEn: "Teacher Portal Hub", titleKu: "پۆرتاڵی گشتی مامۆستایان", desc: "Main gateway hub containing all digital services for teaching staff.", icon: "briefcase", url: "https://english-uor.github.io/Teacher-Portal/",
+            colors: {
+                cardStyle: "bg-white/70 border-white/60 hover:border-purple-300 dark:bg-purple-950/30 dark:border-purple-800/40 dark:hover:bg-purple-900/50 dark:hover:border-purple-500/60",
+                glow: "bg-purple-500/20 dark:bg-purple-500/30 group-hover:bg-purple-400/40",
+                iconBox: "bg-white dark:bg-purple-900/60 border-slate-100 dark:border-purple-700/50",
+                icon: "text-purple-500 dark:text-purple-400", title: "text-slate-800 dark:text-purple-50", subtitle: "text-slate-500 dark:text-purple-300/80", desc: "text-slate-600 dark:text-purple-100/70", divider: "border-slate-200/60 dark:border-purple-800/50",
+                btnBox: "bg-slate-100/80 dark:bg-purple-900/40 group-hover/btn:bg-purple-100 dark:group-hover/btn:bg-purple-700/80 border-transparent dark:border-purple-800/30", btnText: "text-slate-600 dark:text-purple-300 group-hover/btn:text-purple-600 dark:group-hover/btn:text-purple-100"
+            }
+        },
+        {
+            id: 14, titleEn: "Student Portal Hub", titleKu: "پۆرتاڵی گشتی خوێندکاران", desc: "Main gateway hub containing all academic tools and student resources.", icon: "graduation-cap", url: "https://english-uor.github.io/Student-Portal/",
+            colors: {
+                cardStyle: "bg-white/70 border-white/60 hover:border-sky-300 dark:bg-sky-950/30 dark:border-sky-800/40 dark:hover:bg-sky-900/50 dark:hover:border-sky-500/60",
+                glow: "bg-sky-500/20 dark:bg-sky-500/30 group-hover:bg-sky-400/40",
+                iconBox: "bg-white dark:bg-sky-900/60 border-slate-100 dark:border-sky-700/50",
+                icon: "text-sky-500 dark:text-sky-400", title: "text-slate-800 dark:text-sky-50", subtitle: "text-slate-500 dark:text-sky-300/80", desc: "text-slate-600 dark:text-sky-100/70", divider: "border-slate-200/60 dark:border-sky-800/50",
+                btnBox: "bg-slate-100/80 dark:bg-sky-900/40 group-hover/btn:bg-sky-100 dark:group-hover/btn:bg-sky-700/80 border-transparent dark:border-sky-800/30", btnText: "text-slate-600 dark:text-sky-300 group-hover/btn:text-sky-600 dark:group-hover/btn:text-sky-100"
+            }
+        },
+        {
+            id: 15, titleEn: "Unique Code Retrieval", titleKu: "وەرگرتنی کۆدی تایبەت", desc: "Request and retrieve unique identification codes for students and teachers.", icon: "key", url: "https://english-uor.github.io/getcode/",
+            colors: {
+                cardStyle: "bg-white/70 border-white/60 hover:border-orange-300 dark:bg-orange-950/30 dark:border-orange-800/40 dark:hover:bg-orange-900/50 dark:hover:border-orange-500/60",
+                glow: "bg-orange-500/20 dark:bg-orange-500/30 group-hover:bg-orange-400/40",
+                iconBox: "bg-white dark:bg-orange-900/60 border-slate-100 dark:border-orange-700/50",
+                icon: "text-orange-500 dark:text-orange-400", title: "text-slate-800 dark:text-orange-50", subtitle: "text-slate-500 dark:text-orange-300/80", desc: "text-slate-600 dark:text-orange-100/70", divider: "border-slate-200/60 dark:border-orange-800/50",
+                btnBox: "bg-slate-100/80 dark:bg-orange-900/40 group-hover/btn:bg-orange-100 dark:group-hover/btn:bg-orange-700/80 border-transparent dark:border-orange-800/30", btnText: "text-slate-600 dark:text-orange-300 group-hover/btn:text-orange-600 dark:group-hover/btn:text-orange-100"
+            }
+        },
+        {
+            id: 16, titleEn: "Topic Check", titleKu: "پشکنینی بابەت", desc: "Check and verify the status of graduation research topics.", icon: "clipboard-check", url: "https://english-uor.github.io/Topic-checker/",
+            colors: {
+                cardStyle: "bg-white/70 border-white/60 hover:border-green-300 dark:bg-green-950/30 dark:border-green-800/40 dark:hover:bg-green-900/50 dark:hover:border-green-500/60",
+                glow: "bg-green-500/20 dark:bg-green-500/30 group-hover:bg-green-400/40",
+                iconBox: "bg-white dark:bg-green-900/60 border-slate-100 dark:border-green-700/50",
+                icon: "text-green-500 dark:text-green-400", title: "text-slate-800 dark:text-green-50", subtitle: "text-slate-500 dark:text-green-300/80", desc: "text-slate-600 dark:text-green-100/70", divider: "border-slate-200/60 dark:border-green-800/50",
+                btnBox: "bg-slate-100/80 dark:bg-green-900/40 group-hover/btn:bg-green-100 dark:group-hover/btn:bg-green-700/80 border-transparent dark:border-green-800/30", btnText: "text-slate-600 dark:text-green-300 group-hover/btn:text-green-600 dark:group-hover/btn:text-green-100"
+            }
         }
-        throw new Error('نەتوانرا پەیوەندی بکرێت بە سیستەمەوە — ئینتەرنێتەکەت پشکنە');
-      } finally {
-        clearTimeout(timer);
-      }
-    }
+    ];
 
-    async function parseJsonResponse(res) {
-      let data;
-      try {
-        data = await res.json();
-      } catch (e) {
-        throw new Error('وەڵامی سیستەمەکە دروست نەبوو، تکایە دووبارە هەوڵبدەرەوە');
-      }
-      if (!data.success) throw new Error(data.error || 'هەڵەیەکی نەزانراو ڕوویدا');
-      return data;
-    }
+    let pinnedApps = JSON.parse(localStorage.getItem('uor_pinned_apps') || '[]');
+    let isCompactView = localStorage.getItem('uor_compact_view') === 'true'; // Global state for Layout
+    let deferredPrompt;
 
-    async function apiGet(action, params, _isRetry) {
-      const url = new URL(GAS_URL);
-      url.searchParams.set('action', action);
-      Object.entries(params || {}).forEach(([k, v]) => {
-        if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);
-      });
-      let res;
-      try {
-        res = await fetchWithTimeout(url.toString(), { method: 'GET' });
-      } catch (networkErr) {
-        if (!_isRetry) { await delay(1200); return apiGet(action, params, true); }
-        throw networkErr;
-      }
-      return parseJsonResponse(res);
-    }
-
-    async function apiPost(action, payload) {
-      const res = await fetchWithTimeout(GAS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action, ...payload })
-      });
-      return parseJsonResponse(res);
-    }
-
-    function isConfigured() {
-      return typeof GAS_URL === 'string' && GAS_URL.startsWith('http');
-    }
-
-    // ============================================================
-    // Duplicate / similarity detection — Kurdish (Sorani) + English
-    // ============================================================
-    function normalizeText(str) {
-      if (!str) return '';
-      let s = str.toString().trim().toLowerCase();
-      const map = { 'ي': 'ی', 'ك': 'ک', 'ة': 'ه', 'إ': 'ا', 'أ': 'ا', 'آ': 'ا', 'ۀ': 'ه' };
-      s = s.replace(/[يكةإأآۀ]/g, ch => map[ch] || ch);
-      s = s.replace(/[\u064B-\u065F\u0640\u200c\u200d]/g, ''); // diacritics, tatweel, ZWNJ
-      s = s.replace(/[.,!?؟،؛:'"“”()\[\]{}\-_/\\]/g, ' ');
-      s = s.replace(/\s+/g, ' ').trim();
-      return s;
-    }
-
-    function levenshtein(a, b) {
-      const m = a.length, n = b.length;
-      if (m === 0) return n;
-      if (n === 0) return m;
-      let prev = new Array(n + 1);
-      for (let j = 0; j <= n; j++) prev[j] = j;
-      for (let i = 1; i <= m; i++) {
-        const curr = [i];
-        for (let j = 1; j <= n; j++) {
-          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-          curr[j] = Math.min(prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + cost);
-        }
-        prev = curr;
-      }
-      return prev[n];
-    }
-
-    function charSimilarity(a, b) {
-      if (!a && !b) return 1;
-      if (!a || !b) return 0;
-      const dist = levenshtein(a, b);
-      const maxLen = Math.max(a.length, b.length);
-      return maxLen === 0 ? 1 : 1 - dist / maxLen;
-    }
-
-    function tokenOverlap(a, b) {
-      const ta = new Set(a.split(' ').filter(Boolean));
-      const tb = new Set(b.split(' ').filter(Boolean));
-      if (ta.size === 0 && tb.size === 0) return 1;
-      if (ta.size === 0 || tb.size === 0) return 0;
-      let inter = 0;
-      ta.forEach(t => { if (tb.has(t)) inter++; });
-      const union = new Set([...ta, ...tb]).size;
-      return inter / union;
-    }
-
-    function topicSimilarity(a, b) {
-      const na = normalizeText(a), nb = normalizeText(b);
-      if (!na || !nb) return 0;
-      if (na === nb) return 1;
-      const cs = charSimilarity(na, nb);
-      const ts = tokenOverlap(na, nb);
-      return Math.max(cs, ts * 0.9 + cs * 0.1);
-    }
-
-    // Mutable on purpose: an admin can retune these from the Settings tab
-    // (see applyThresholdSettings()) without touching code. Defaults match
-    // what shipped originally (85% / 50%) until settings load.
-    let SIMILARITY_THRESHOLDS = { duplicate: 0.85, similar: 0.5 };
-
-    function applyThresholdSettings() {
-      const dup = Number(settings.duplicateThreshold);
-      const sim = Number(settings.similarThreshold);
-      SIMILARITY_THRESHOLDS.duplicate = (dup > 0 && dup <= 100) ? dup / 100 : 0.85;
-      SIMILARITY_THRESHOLDS.similar = (sim > 0 && sim <= 100) ? sim / 100 : 0.5;
-    }
-
-    function scoreAgainstTopics(query, topics) {
-      return topics
-        .map(t => ({ ...t, score: topicSimilarity(query, t.title) }))
-        .filter(t => t.score > 0.15)
-        .sort((a, b) => b.score - a.score)
-        .map(t => ({
-          ...t,
-          level: t.score >= SIMILARITY_THRESHOLDS.duplicate ? 'duplicate'
-            : t.score >= SIMILARITY_THRESHOLDS.similar ? 'similar'
-            : 'weak'
-        }));
-    }
-
-    // ============================================================
-    // STATE
-    // ============================================================
-    let allTopics = [];
-    let currentResultsList = []; // whatever is currently rendered in #results, for click-to-open-detail
-    let settings = { academicYear: '2026-2027', appUrl: '', registerUrl: '', duplicateThreshold: 85, similarThreshold: 50 };
-    let yearFilter = 'all';
-    let adminPassword = null;
-    let isLoggedIn = false;
-
-    let topicsAdmin = [];
-    let teachersAdmin = [];
-    let selectedTeacherRows = new Set();
-    let editingTopicRow = null;
-    let editingTeacherRow = null;
-
-    // ============================================================
-    // PUBLIC: BOOT + SEARCH/BROWSE
-    // ============================================================
-    let loadFailed = false;
-    let loadErrorMessage = '';
-    let stillLoadingTimer = null;
-
-    async function boot() {
-      await loadPublicData();
-      restoreAdminSession();
-    }
-
-    // The search box stays disabled until topics have actually loaded, so
-    // people can't type a check against an empty/incomplete archive and
-    // wrongly read "no results" as "not a duplicate."
-    function setSearchEnabled(enabled, placeholder) {
-      const box = document.getElementById('searchBox');
-      box.disabled = !enabled;
-      if (placeholder) box.placeholder = placeholder;
-    }
-    const SEARCH_PLACEHOLDER_DEFAULT = 'ناونیشانێک بنووسە بۆ پشکنینی دووبارەبوونەوە یان گەڕان...';
-    const SEARCH_PLACEHOLDER_LOADING = 'چاوەڕێبە... ناونیشانەکان باردەکرێن';
-    const SEARCH_PLACEHOLDER_FAILED = 'نەتوانرا باربکرێت — دووبارە هەوڵبدەرەوە لە خوارەوە بکە';
-
-    function parseCSV(text) {
-      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
-      const topics = [];
-      // Skip row 0 and 1 (header and subtitle rows)
-      for (let i = 2; i < lines.length; i++) {
-        const cols = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
-        if (cols[0]) {
-          topics.push({
-            title: cols[0] || '',
-            academicYear: cols[1] || '',
-            supervisor: cols[2] || '',
-            researchLink: cols[3] || '',
-            abstract: cols[4] || ''
-          });
-        }
-      }
-      return topics;
-    }
-
-    async function loadPublicData() {
-      loadFailed = false;
-      loadErrorMessage = '';
-      setSearchEnabled(false, SEARCH_PLACEHOLDER_LOADING);
-      renderSkeleton('چاوەڕێبە... ناونیشانەکان باردەکرێن');
-
-      const settingsPromise = isConfigured()
-        ? apiGet('getSettings', {}).then(res => {
-            if (res && res.settings) settings = res.settings;
-            applyThresholdSettings();
-          }).catch(() => {})
-        : Promise.resolve();
-
-      await Promise.all([settingsPromise, loadTopicsList()]);
-
-      setSearchEnabled(!loadFailed, loadFailed ? SEARCH_PLACEHOLDER_FAILED : SEARCH_PLACEHOLDER_DEFAULT);
-
-      renderRibbon();
-      populateSupervisorFilter();
-      renderResults();
-    }
-
-    // Primary source: live data straight from the Sheet via Apps Script —
-    // always current, no "Publish to web" snapshot/staleness risk. Backup:
-    // the published CSV, used only if the live call fails (e.g. Apps
-    // Script temporarily unreachable) so the page still has something to
-    // show.
-    async function loadTopicsList() {
-      if (isConfigured()) {
-        try {
-          const res = await apiGet('getTopics', {});
-          allTopics = res.topics || [];
-          return;
-        } catch (err) {
-          // fall through to the CSV backup below
-        }
-      }
-      try {
-        const res = await fetch(CSV_URL);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const csvText = await res.text();
-        allTopics = parseCSV(csvText);
-      } catch (err) {
-        loadFailed = true;
-        loadErrorMessage = 'نەتوانرا ناونیشانەکان باربکرێن.';
-      }
-    }
-
-    function renderSkeleton(message) {
-      const notice = message
-        ? `<div class="loading-notice"><span class="spinner"></span>${escapeHtml(message)}</div>`
-        : '';
-      document.getElementById('results').innerHTML =
-        notice + Array.from({ length: 4 }).map(() => '<div class="skeleton-card"></div>').join('');
-    }
-
-    function renderRibbon() {
-      const years = [...new Set(allTopics.map(t => t.academicYear).filter(Boolean))].sort().reverse();
-      const chips = [`<button class="ribbon-pill ${yearFilter === 'all' ? 'active' : ''}" onclick="setYearFilter('all')">هەموو ساڵەکان</button>`]
-        .concat(years.map(y => {
-          const label = (settings.academicYear && y === settings.academicYear) ? `${y} •` : y;
-          return `<button class="ribbon-pill ${yearFilter === y ? 'active' : ''}" onclick="setYearFilter('${y}')">${escapeHtml(label)}</button>`;
-        }));
-      document.getElementById('ribbon').innerHTML = chips.join('');
-    }
-
-    function setYearFilter(y) {
-      yearFilter = y;
-      renderRibbon();
-      renderResults();
-    }
-
-    function populateSupervisorFilter() {
-      const names = [...new Set(allTopics.map(t => t.supervisor).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ku'));
-      document.getElementById('supervisorFilter').innerHTML =
-        '<option value="all">هەموو سەرپەرشتیاران</option>' +
-        names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
-    }
-
-    document.getElementById('searchBox').addEventListener('input', (e) => {
-      document.getElementById('searchWrap').classList.toggle('has-text', e.target.value.length > 0);
-      debouncedRender();
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const btn = document.getElementById('installBtn');
+        if(btn) btn.classList.remove('hidden');
     });
-    const debouncedRender = debounce(renderResults, 220);
-    document.getElementById('supervisorFilter').addEventListener('change', renderResults);
 
-    function clearSearch() {
-      const box = document.getElementById('searchBox');
-      box.value = '';
-      document.getElementById('searchWrap').classList.remove('has-text');
-      box.focus();
-      renderResults();
-    }
-
-    function renderResults() {
-      if (loadFailed) {
-        document.getElementById('stampArea').style.display = 'none';
-        document.getElementById('dupActions').style.display = 'none';
-        document.getElementById('matchList').innerHTML = '';
-        document.getElementById('resultsCount').textContent = '';
-        document.getElementById('results').innerHTML = `
-          <div class="empty-state">
-            <span class="icon">⚠️</span>
-            ${escapeHtml(loadErrorMessage || 'هەڵەیەک ڕوویدا لە بارکردنی داتاکان.')}
-            <div style="margin-top:16px;">
-              <button class="btn btn-primary btn-sm" onclick="loadPublicData()">🔄 دووبارە هەوڵبدەرەوە</button>
-            </div>
-          </div>`;
-        return;
-      }
-
-      const query = document.getElementById('searchBox').value.trim();
-      const supervisor = document.getElementById('supervisorFilter').value;
-
-      updateDuplicateBanner(query);
-
-      let base = allTopics.filter(t =>
-        (yearFilter === 'all' || t.academicYear === yearFilter) &&
-        (supervisor === 'all' || t.supervisor === supervisor)
-      );
-
-      let scored;
-      if (query.length >= 2) {
-        scored = scoreAgainstTopics(query, base).filter(t => t.level !== 'weak');
-      } else {
-        scored = base.map(t => ({ ...t, score: 1 }))
-          .sort((a, b) => (b.academicYear || '').localeCompare(a.academicYear || '') || a.title.localeCompare(b.title, 'ku'));
-      }
-
-      currentResultsList = scored;
-      document.getElementById('resultsCount').textContent = `${scored.length} ناونیشان دۆزرایەوە`;
-
-      const resultsEl = document.getElementById('results');
-      if (scored.length === 0) {
-        resultsEl.innerHTML = `<div class="empty-state"><span class="icon">📭</span>هیچ ناونیشانێک نەدۆزرایەوە بەم پاڵاوتنانە.</div>`;
-        return;
-      }
-
-      resultsEl.innerHTML = scored.map((t, i) => `
-        <div class="topic-card" onclick="openDetail(${i})">
-          <span class="card-tab">${escapeHtml(t.academicYear || '')}</span>
-          <span class="chevron">‹</span>
-          <h4>${escapeHtml(t.title)}</h4>
-          <div class="topic-tags">
-            <span class="tag">${escapeHtml(t.supervisor || '')}</span>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // Populates the "stamp" — the page's signature element — with the
-    // duplicate-check result, like a registrar stamping an index card.
-    function updateDuplicateBanner(query) {
-      const areaEl = document.getElementById('stampArea');
-      const stampEl = document.getElementById('stamp');
-      const iconEl = document.getElementById('stampIcon');
-      const textEl = document.getElementById('stampText');
-      const listEl = document.getElementById('matchList');
-      const actionsEl = document.getElementById('dupActions');
-
-      if (!query || query.length < 3) {
-        areaEl.style.display = 'none';
-        listEl.innerHTML = '';
-        actionsEl.style.display = 'none';
-        actionsEl.innerHTML = '';
-        return;
-      }
-
-      areaEl.style.display = 'flex';
-      const matches = scoreAgainstTopics(query, allTopics).slice(0, 5); // always against the full archive
-      const top = matches[0];
-
-      if (!top || top.level === 'weak') {
-        stampEl.className = 'stamp ok';
-        iconEl.textContent = '✓';
-        textEl.textContent = 'دووبارە نییە';
-        listEl.innerHTML = '';
-        let actionsHtml = `<button type="button" class="btn btn-ghost btn-sm" onclick="copySearchText()" id="copyBtn">📋 کۆپیکردنی ناونیشان</button>`;
-        if (settings.registerUrl) {
-          actionsHtml += `<button type="button" class="btn btn-primary btn-sm" onclick="openCodeGate()">چوونە سیستەمی تۆمارکردن ⟵</button>`;
+    async function installApp() {
+        if(!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if(outcome === 'accepted'){
+            showToast('App Installed 🎉');
         }
-        actionsEl.innerHTML = actionsHtml;
-        actionsEl.style.display = 'flex';
-        return;
-      }
-
-      actionsEl.style.display = 'none';
-      actionsEl.innerHTML = '';
-      if (top.level === 'duplicate') {
-        stampEl.className = 'stamp duplicate';
-        iconEl.textContent = '⛔';
-        textEl.textContent = 'دووبارەیە';
-      } else {
-        stampEl.className = 'stamp similar';
-        iconEl.textContent = '⚠';
-        textEl.textContent = 'لێکچووی هەیە';
-      }
-
-      listEl.innerHTML = matches.map(m => `
-        <div class="match-item lvl-${m.level}">
-          <div class="m-title">${escapeHtml(m.title)}</div>
-          <div class="m-meta">${escapeHtml(m.supervisor || '')} · ${escapeHtml(m.academicYear || '')} · ڕێژەی لێکچوون ${Math.round(m.score * 100)}%</div>
-        </div>
-      `).join('');
+        deferredPrompt = null;
+        const btn = document.getElementById('installBtn');
+        if(btn) btn.classList.add('hidden');
     }
 
-    async function copySearchText() {
-      const text = document.getElementById('searchBox').value.trim();
-      const btn = document.getElementById('copyBtn');
-      const original = btn.textContent;
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(text);
-        } else {
-          const ta = document.createElement('textarea');
-          ta.value = text;
-          ta.style.position = 'fixed';
-          ta.style.opacity = '0';
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
+    // Accurate Kurdish Solar Calendar Algorithm
+    function getKurdishSolarDate(date) {
+        const year = date.getFullYear(); const month = date.getMonth() + 1; const day = date.getDate();
+        const kurdishMonths = ["خاکەلێوە", "بانەمەڕ", "جۆزەردان", "پووشپەڕ", "گەلاوێژ", "خەرمانان", "ڕەزبەر", "گەڵاڕێزان", "سەرماوەز", "بەفرانبار", "ڕێبەندان", "ڕەشەمێ"];
+        const isLeap = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+        const gregDays = [0, 31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        let daysSinceJan1 = 0; for(let i = 1; i < month; i++) daysSinceJan1 += gregDays[i]; daysSinceJan1 += day;
+        const march21Day = 31 + (isLeap ? 29 : 28) + 21; let kurdishYear = year + 700; let daysIntoKurdishYear = daysSinceJan1 - march21Day + 1;
+        if (daysIntoKurdishYear <= 0) {
+            kurdishYear -= 1;
+            const prevYearLeap = ((year-1) % 4 === 0 && (year-1) % 100 !== 0) || ((year-1) % 400 === 0);
+            daysIntoKurdishYear += prevYearLeap ? 366 : 365;
         }
-        btn.textContent = '✓ کۆپی کرا';
-        setTimeout(() => { btn.textContent = original; }, 1600);
-      } catch (err) {
-        toast('کۆپیکردن سەرکەوتوو نەبوو');
-      }
-    }
-
-    function openDetail(index) {
-      const t = currentResultsList[index];
-      if (!t) return;
-      document.getElementById('detailYear').textContent = t.academicYear || '';
-      document.getElementById('detailSupervisor').textContent = t.supervisor || '';
-      document.getElementById('detailTitle').textContent = t.title;
-
-      const abstractEl = document.getElementById('detailAbstract');
-      if (t.abstract && t.abstract.trim()) {
-        abstractEl.textContent = t.abstract;
-        abstractEl.classList.remove('unavailable');
-      } else {
-        abstractEl.textContent = 'هێشتا بەردەست نییە';
-        abstractEl.classList.add('unavailable');
-      }
-
-      const linkBlock = document.getElementById('detailLinkBlock');
-      const rawLink = (t.researchLink || '').trim();
-      const driveId = extractDriveFileId(rawLink);
-      if (driveId) {
-        linkBlock.innerHTML = `
-          <div class="b-label">خوێندنەوەی توێژینەوەکە (تەنها خوێندنەوە)</div>
-          <iframe class="pdf-frame" src="${escapeAttr(driveEmbedUrl(driveId))}" loading="lazy"></iframe>
-          <p class="pdf-note">ئەم فایلە تەنها بۆ خوێندنەوەیە و ناتوانرێت دابگیرێت.</p>
-        `;
-      } else if (rawLink) {
-        linkBlock.innerHTML = `<a class="detail-link-btn" href="${escapeAttr(rawLink)}" target="_blank" rel="noopener">📄 خوێندنەوەی توێژینەوەکە</a>`;
-      } else {
-        linkBlock.innerHTML = `<div class="b-label">خوێندنەوەی توێژینەوەکە</div><div class="b-body unavailable">هێشتا بەردەست نییە</div>`;
-      }
-
-      const closeEl = document.getElementById('detailCloseTopics');
-      const others = allTopics.filter(o => !(o.title === t.title && o.supervisor === t.supervisor && o.academicYear === t.academicYear));
-      const closeMatches = scoreAgainstTopics(t.title, others).filter(m => m.level !== 'weak').slice(0, 4);
-      if (closeMatches.length) {
-        closeEl.innerHTML = `
-          <div class="b-label">ناونیشانی نزیک لەمە</div>
-          <div class="match-list">${closeMatches.map(m => `
-            <div class="match-item lvl-${m.level}">
-              <div class="m-title">${escapeHtml(m.title)}</div>
-              <div class="m-meta">${escapeHtml(m.supervisor || '')} · ${escapeHtml(m.academicYear || '')} · ڕێژەی لێکچوون ${Math.round(m.score * 100)}%</div>
-            </div>`).join('')}</div>
-        `;
-      } else {
-        closeEl.innerHTML = '';
-      }
-
-      openModal('detailModal');
-    }
-
-    // ============================================================
-    // Drive file preview — the admin now just pastes the Drive FILE ID
-    // (or a full Drive link) into "Research Link". This turns either
-    // into an embedded read-only viewer instead of a downloadable link.
-    // ============================================================
-    function extractDriveFileId(link) {
-      if (!link) return '';
-      const s = link.trim();
-      if (!s) return '';
-      // A bare file ID: no slashes/spaces and not a URL at all.
-      if (!/[\/\s]/.test(s) && !/^https?:/i.test(s)) return s;
-      // A full Drive URL (file/d/ID/view, open?id=ID, etc.) — pull the ID out.
-      const m = s.match(/[-\w]{20,}/);
-      return m ? m[0] : '';
-    }
-    function driveEmbedUrl(fileId) {
-      return `https://drive.google.com/file/d/${encodeURIComponent(fileId)}/preview`;
-    }
-
-    // ============================================================
-    // REGISTRATION REMINDER — shown before sending someone to the
-    // external topic-registration system. This is an attention/alert
-    // only: it does not check the code, it just reminds the teacher to
-    // have it ready and to double-check their topics. If they want, they
-    // can go straight through to the registration link.
-    // ============================================================
-    function openCodeGate() {
-      openModal('codeGateModal');
-    }
-
-    function proceedToRegister() {
-      closeModal('codeGateModal');
-      if (settings.registerUrl) window.open(settings.registerUrl, '_blank', 'noopener');
-    }
-
-    // ============================================================
-    // ADMIN — auth (persistent, like staying logged into an app)
-    // ============================================================
-    async function restoreAdminSession() {
-      const saved = localStorage.getItem('uor_admin_pw');
-      if (!saved) return;
-      adminPassword = saved;
-      try {
-        const res = await apiPost('adminLogin', { password: adminPassword });
-        if (res.success) {
-          isLoggedIn = true;
-          document.getElementById('adminToggleBtn').classList.add('logged-in');
-          document.getElementById('adminToggleBtn').textContent = '🛡️ ئەدمین ✓';
-        } else {
-          localStorage.removeItem('uor_admin_pw');
-          adminPassword = null;
+        let kMonth = 0; let kDay = daysIntoKurdishYear;
+        for (let i = 0; i < 12; i++) {
+            let mDays = i < 6 ? 31 : 30; if (i === 11) mDays = isLeap ? 30 : 29;
+            if (kDay <= mDays) { kMonth = i; break; }
+            kDay -= mDays;
         }
-      } catch (e) { /* offline or misconfigured — ignore silently */ }
+        const toKurdishNumerals = (num) => String(num).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
+        return `${toKurdishNumerals(kDay)}ی ${kurdishMonths[kMonth]}ی ${toKurdishNumerals(kurdishYear)}`;
     }
 
-    function openAdmin() {
-      document.getElementById('adminOverlay').style.display = 'block';
-      document.getElementById('publicView').style.display = 'none';
-      if (isLoggedIn) {
-        showDashboard();
-      } else {
-        document.getElementById('loginView').style.display = 'block';
-        document.getElementById('dashView').style.display = 'none';
-        document.getElementById('logoutBtn').style.display = 'none';
-      }
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+        initTheme();
+        lucide.createIcons();
+        registerProductionSW();
+        initPremiumClock();
 
-    function closeAdmin() {
-      document.getElementById('adminOverlay').style.display = 'none';
-      document.getElementById('publicView').style.display = 'block';
-    }
-
-    function authedPost(action, payload) {
-      return apiPost(action, { password: adminPassword, ...payload });
-    }
-
-    async function login() {
-      const pw = document.getElementById('pwInput').value;
-      const msg = document.getElementById('loginMsg');
-      msg.textContent = 'پشکنین...';
-      msg.style.color = '#6B7488';
-      try {
-        const res = await apiPost('adminLogin', { password: pw });
-        if (res.success) {
-          adminPassword = pw;
-          isLoggedIn = true;
-          localStorage.setItem('uor_admin_pw', pw);
-          document.getElementById('adminToggleBtn').classList.add('logged-in');
-          document.getElementById('adminToggleBtn').textContent = '🛡️ ئەدمین ✓';
-          showDashboard();
-        } else {
-          msg.textContent = '⚠ وشەی نهێنی هەڵەیە.';
-          msg.style.color = '#A6432E';
-        }
-      } catch (err) {
-        msg.textContent = '⚠ هەڵە: ' + err.message;
-        msg.style.color = '#A6432E';
-      }
-    }
-
-    function logout() {
-      localStorage.removeItem('uor_admin_pw');
-      adminPassword = null;
-      isLoggedIn = false;
-      document.getElementById('adminToggleBtn').classList.remove('logged-in');
-      document.getElementById('adminToggleBtn').textContent = '🛡️ ئەدمین';
-      closeAdmin();
-    }
-
-    async function showDashboard() {
-      document.getElementById('loginView').style.display = 'none';
-      document.getElementById('dashView').style.display = 'block';
-      document.getElementById('logoutBtn').style.display = 'inline-flex';
-      await loadAdminData();
-    }
-
-    async function loadAdminData() {
-      const [t, tc] = await Promise.all([
-        authedPost('getTopicsAdmin', {}),
-        authedPost('getTeachersAdmin', {})
-      ]);
-      topicsAdmin = t.topics;
-      teachersAdmin = tc.teachers;
-      document.getElementById('setYear').value = settings.academicYear || '';
-      document.getElementById('setAppUrl').value = settings.appUrl || '';
-      document.getElementById('setRegisterUrl').value = settings.registerUrl || '';
-      document.getElementById('setDupThreshold').value = settings.duplicateThreshold ?? 85;
-      document.getElementById('setSimThreshold').value = settings.similarThreshold ?? 50;
-      updateThresholdHintText();
-      renderOverview();
-      populateTopicYearFilter();
-      renderTopicsTable();
-      renderTeachersTable();
-    }
-
-    function updateThresholdHintText() {
-      const el = document.getElementById('dupThresholdHint');
-      if (el) el.textContent = `٪${Math.round(SIMILARITY_THRESHOLDS.duplicate * 100)}`;
-    }
-
-    function switchTab(name) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
-      document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
-      document.getElementById('tab-' + name).style.display = 'block';
-    }
-
-    // ---------- OVERVIEW ----------
-    function renderOverview() {
-      const totalTopics = topicsAdmin.length;
-      const totalTeachers = teachersAdmin.length;
-      const years = new Set(topicsAdmin.map(t => t.academicYear)).size;
-      const supervisors = new Set(topicsAdmin.map(t => t.supervisor)).size;
-
-      document.getElementById('statRow').innerHTML = `
-        <div class="stat-box"><div class="n">${totalTopics}</div><div class="l">کۆی ناونیشانەکان</div></div>
-        <div class="stat-box"><div class="n">${supervisors}</div><div class="l">ژمارەی سەرپەرشتیاران</div></div>
-        <div class="stat-box"><div class="n">${years}</div><div class="l">ساڵی خوێندن</div></div>
-        <div class="stat-box"><div class="n">${totalTeachers}</div><div class="l">کۆی مامۆستایان</div></div>
-      `;
-
-      const counts = {};
-      topicsAdmin.forEach(t => { counts[t.supervisor] = (counts[t.supervisor] || 0) + 1; });
-      const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-      document.getElementById('supervisorStatsTable').innerHTML =
-        '<tbody>' + top.map(([name, n]) => `<tr><td>${escapeHtml(name)}</td><td>${n}</td></tr>`).join('') + '</tbody>';
-    }
-
-    // ---------- TOPICS ----------
-    function populateTopicYearFilter() {
-      const years = [...new Set(topicsAdmin.map(t => t.academicYear))].sort().reverse();
-      document.getElementById('topicYearFilter').innerHTML =
-        '<option value="all">هەموو ساڵەکان</option>' +
-        years.map(y => `<option value="${escapeHtml(y)}">${escapeHtml(y)}</option>`).join('');
-    }
-
-    function renderTopicsTable() {
-      const q = document.getElementById('topicSearch').value.trim().toLowerCase();
-      const year = document.getElementById('topicYearFilter').value;
-      const rows = topicsAdmin
-        .filter(t => year === 'all' || t.academicYear === year)
-        .filter(t => !q || t.title.toLowerCase().includes(q) || (t.supervisor || '').toLowerCase().includes(q));
-
-      document.getElementById('topicsTableBody').innerHTML = rows.map(t => `
-        <tr>
-          <td>${escapeHtml(t.title)}</td>
-          <td>${escapeHtml(t.academicYear)}</td>
-          <td>${escapeHtml(t.supervisor)}</td>
-          <td>${t.abstract ? '✓' : '—'}</td>
-          <td>${t.researchLink ? '✓' : '—'}</td>
-          <td class="actions">
-            <button class="btn btn-outline btn-sm" onclick="openTopicEdit(${t.row})">دەستکاری</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteTopic(${t.row})">سڕینەوە</button>
-          </td>
-        </tr>
-      `).join('') || '<tr><td colspan="6" style="text-align:center;color:#6B7488;">هیچ نەدۆزرایەوە</td></tr>';
-    }
-
-    function openTopicEdit(row) {
-      const t = topicsAdmin.find(x => x.row === row);
-      if (!t) return;
-      editingTopicRow = row;
-      document.getElementById('editTopicTitle').value = t.title;
-      document.getElementById('editTopicYear').value = t.academicYear;
-      document.getElementById('editTopicSupervisor').value = t.supervisor;
-      document.getElementById('editTopicLink').value = t.researchLink || '';
-      document.getElementById('editTopicAbstract').value = t.abstract || '';
-      openModal('topicModal');
-    }
-
-    async function saveTopicEdit() {
-      try {
-        await authedPost('updateTopic', {
-          row: editingTopicRow,
-          title: document.getElementById('editTopicTitle').value.trim(),
-          academicYear: document.getElementById('editTopicYear').value.trim(),
-          supervisor: document.getElementById('editTopicSupervisor').value.trim(),
-          researchLink: document.getElementById('editTopicLink').value.trim(),
-          abstract: document.getElementById('editTopicAbstract').value.trim()
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('search-input').focus();
+            }
         });
-        closeModal('topicModal');
-        toast('نوێکرایەوە ✓');
-        await refreshAfterAdminChange();
-      } catch (err) { toast('هەڵە: ' + err.message); }
-    }
 
-    async function deleteTopic(row) {
-      if (!confirm('دڵنیایت لە سڕینەوەی ئەم ناونیشانە؟')) return;
-      try {
-        await authedPost('deleteTopic', { row });
-        toast('سڕایەوە ✓');
-        await refreshAfterAdminChange();
-      } catch (err) { toast('هەڵە: ' + err.message); }
-    }
-
-    async function bulkAddTopics() {
-      const raw = document.getElementById('bulkTopics').value.trim();
-      const msg = document.getElementById('bulkTopicsMsg');
-      if (!raw) return;
-      const rows = raw.split('\n').map(line => line.trim()).filter(Boolean).map(line => {
-        const parts = line.split('|').map(s => s.trim());
-        return {
-          title: parts[0] || '', academicYear: parts[1] || '', supervisor: parts[2] || '',
-          researchLink: parts[3] || '', abstract: parts[4] || ''
-        };
-      }).filter(r => r.title && r.supervisor);
-
-      if (rows.length === 0) { msg.textContent = '⚠ هیچ ڕیزێکی دروست نەدۆزرایەوە.'; return; }
-      msg.textContent = 'زیادکردن...';
-      try {
-        const res = await authedPost('bulkAddTopics', { rows });
-        msg.textContent = `✓ ${res.added} ناونیشان زیادکرا.`;
-        document.getElementById('bulkTopics').value = '';
-        await refreshAfterAdminChange();
-      } catch (err) { msg.textContent = '⚠ هەڵە: ' + err.message; }
-    }
-
-    // ---------- TOPICS: whole-database duplicate check ----------
-    // Reuses the same topicSimilarity() used by the public search-box
-    // check, but runs every topic against every other topic instead of
-    // a single typed query. Purely client-side over the already-loaded
-    // topicsAdmin list — no backend changes needed for this part.
-    let lastCheckReport = null; // { timestamp, rows: [...] }
-
-    function runDuplicateCheck() {
-      const list = topicsAdmin;
-      const rows = list.map((t, i) => {
-        const scored = list
-          .filter((o, j) => j !== i)
-          .map(o => ({ title: o.title, supervisor: o.supervisor, academicYear: o.academicYear, score: topicSimilarity(t.title, o.title) }))
-          .filter(o => o.score > 0.15)
-          .sort((a, b) => b.score - a.score);
-        const best = scored[0] || null;
-        const isDuplicate = !!best && best.score >= SIMILARITY_THRESHOLDS.duplicate;
-        const closeMatches = scored.filter(o => o.score >= SIMILARITY_THRESHOLDS.similar).slice(0, 4);
-        return { title: t.title, supervisor: t.supervisor, academicYear: t.academicYear, isDuplicate, closeMatches };
-      });
-
-      lastCheckReport = { timestamp: new Date(), rows };
-      renderCheckReport();
-      document.getElementById('exportCheckPdfBtn').style.display = 'inline-flex';
-      document.getElementById('exportCheckWordBtn').style.display = 'inline-flex';
-    }
-
-    function formatCheckTimestamp(d) {
-      const pad = n => String(n).padStart(2, '0');
-      return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} — ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    }
-
-    function renderCheckReport() {
-      const area = document.getElementById('checkReportArea');
-      if (!lastCheckReport) { area.innerHTML = ''; return; }
-      const { timestamp, rows } = lastCheckReport;
-      const dupCount = rows.filter(r => r.isDuplicate).length;
-      area.innerHTML = `
-        <p class="check-timestamp">ئەم پشکنینە بە شێوەی ئۆتۆماتیکی لەلایەن سیستەمەوە ئەنجامدراوە لە ${formatCheckTimestamp(timestamp)}</p>
-        <p class="results-count">${rows.length} ناونیشان پشکنرا · ${dupCount} گومانلێکراو بە دووبارە</p>
-        ${rows.map(r => `
-          <div class="check-row">
-            <span class="tick ${r.isDuplicate ? 'tick-dup' : 'tick-ok'}">${r.isDuplicate ? '✕' : '✓'}</span>
-            <div class="check-row-body">
-              <h4>${escapeHtml(r.title)}</h4>
-              <div class="m-meta">${escapeHtml(r.supervisor || '')} · ${escapeHtml(r.academicYear || '')}</div>
-              ${r.closeMatches.length ? `
-                <div class="match-list">${r.closeMatches.map(m => `
-                  <div class="match-item ${m.score >= SIMILARITY_THRESHOLDS.duplicate ? 'lvl-duplicate' : 'lvl-similar'}">
-                    <div class="m-title">${escapeHtml(m.title)}</div>
-                    <div class="m-meta">${escapeHtml(m.supervisor || '')} · ${escapeHtml(m.academicYear || '')} · ڕێژەی لێکچوون ${Math.round(m.score * 100)}%</div>
-                  </div>`).join('')}</div>
-              ` : '<div class="helper-text" style="margin:6px 0 0;">هیچ ناونیشانێکی نزیک نەدۆزرایەوە</div>'}
-            </div>
-          </div>
-        `).join('')}
-      `;
-    }
-
-    function checkReportFilenameStamp() {
-      return formatCheckTimestamp(lastCheckReport.timestamp).replace(/[\/: —]+/g, '-');
-    }
-
-    // Real, selectable Kurdish/Arabic text — Word (and LibreOffice) open
-    // an HTML file saved with a .doc extension just fine.
-    function exportCheckAsWord() {
-      if (!lastCheckReport) return;
-      const { timestamp, rows } = lastCheckReport;
-      const rowsHtml = rows.map(r => `
-        <h3 style="font-size:15px;margin:16px 0 4px;color:#1B2942;">${escapeHtml(r.title)}</h3>
-        <p style="margin:0 0 4px;font-size:12.5px;color:#555;">${escapeHtml(r.supervisor || '')} — ${escapeHtml(r.academicYear || '')}</p>
-        <p style="margin:0 0 6px;font-weight:bold;color:${r.isDuplicate ? '#A6432E' : '#4B7A63'};">${r.isDuplicate ? '✕ گومانلێکراوە بە دووبارە' : '✓ دووبارە نییە'}</p>
-        ${r.closeMatches.length ? `<ul style="margin:0 0 10px;padding-right:18px;">${r.closeMatches.map(m => `<li>${escapeHtml(m.title)} — ${Math.round(m.score * 100)}%</li>`).join('')}</ul>` : ''}
-      `).join('');
-      const html = `<html dir="rtl" lang="ckb"><head><meta charset="UTF-8"></head><body style="font-family:Tahoma, Arial, sans-serif;">
-        <h1 style="font-size:18px;color:#1B2942;">ڕاپۆرتی پشکنینی دووبارەبوونەوەی ناونیشانەکان</h1>
-        <p style="font-size:12.5px;color:#555;">ئەم پشکنینە بە شێوەی ئۆتۆماتیکی لەلایەن سیستەمەوە ئەنجامدراوە لە ${formatCheckTimestamp(timestamp)}</p>
-        ${rowsHtml}
-      </body></html>`;
-      const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `topics-check-${checkReportFilenameStamp()}.doc`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }
-
-    // Image-based PDF (via html2canvas → jsPDF): guarantees the Kurdish/
-    // Arabic script renders correctly, since it's a real screenshot of
-    // what the browser already draws — jsPDF's own text drawing can't
-    // shape Arabic script without embedding a custom font.
-    async function exportCheckAsPDF() {
-      if (!lastCheckReport) return;
-      const btn = document.getElementById('exportCheckPdfBtn');
-      const original = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = 'چاوەڕێبە...';
-      let wrapper;
-      try {
-        const source = document.getElementById('checkReportArea');
-        wrapper = document.createElement('div');
-        wrapper.style.cssText = 'position:fixed;top:-10000px;left:-10000px;width:760px;background:#fff;padding:24px;direction:rtl;font-family:Vazirmatn, Tahoma, Arial, sans-serif;';
-        wrapper.innerHTML = `<h1 style="font-size:20px;color:#1B2942;margin:0 0 6px;">ڕاپۆرتی پشکنینی دووبارەبوونەوەی ناونیشانەکان</h1>` + source.innerHTML;
-        document.body.appendChild(wrapper);
-
-        const canvas = await html2canvas(wrapper, { scale: 2, backgroundColor: '#ffffff' });
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'pt', 'a4');
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = pageWidth;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        const imgData = canvas.toDataURL('image/png');
-
-        let heightLeft = imgHeight;
-        let position = 0;
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-        while (heightLeft > 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
-        pdf.save(`topics-check-${checkReportFilenameStamp()}.pdf`);
-      } catch (err) {
-        toast('دەرهێنانی PDF سەرکەوتوو نەبوو: ' + err.message);
-      } finally {
-        if (wrapper) wrapper.remove();
-        btn.disabled = false;
-        btn.textContent = original;
-      }
-    }
-
-    // ---------- TEACHERS ----------
-    function renderTeachersTable() {
-      document.getElementById('teachersTableBody').innerHTML = teachersAdmin.map(t => `
-        <tr>
-          <td><input type="checkbox" ${selectedTeacherRows.has(t.row) ? 'checked' : ''} onchange="toggleTeacherSelect(${t.row}, this.checked)"></td>
-          <td>${escapeHtml(String(t.no ?? ''))}</td>
-          <td>${escapeHtml(t.name)}</td>
-          <td>${escapeHtml(t.email) || '<span style="color:#A6432E;">بێ ئیمەیل</span>'}</td>
-          <td>${t.code ? `<code style="font-weight:700;letter-spacing:0.5px;">${escapeHtml(t.code)}</code>` : '<span style="color:var(--ink-faint);">—</span>'}</td>
-          <td class="actions">
-            <button class="btn btn-outline btn-sm" onclick="openTeacherEdit(${t.row})">دەستکاری</button>
-            <button class="btn btn-primary btn-sm" onclick="sendInvites('one', ${t.row})">ناردن</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteTeacher(${t.row})">سڕینەوە</button>
-          </td>
-        </tr>
-      `).join('') || '<tr><td colspan="6" style="text-align:center;color:#6B7488;">هیچ مامۆستایەک نییە</td></tr>';
-    }
-
-    function toggleTeacherSelect(row, checked) {
-      if (checked) selectedTeacherRows.add(row); else selectedTeacherRows.delete(row);
-    }
-
-    function toggleSelectAll(checkbox) {
-      selectedTeacherRows = checkbox.checked ? new Set(teachersAdmin.map(t => t.row)) : new Set();
-      renderTeachersTable();
-    }
-
-    function openTeacherEdit(row) {
-      const t = teachersAdmin.find(x => x.row === row);
-      if (!t) return;
-      editingTeacherRow = row;
-      document.getElementById('editTeacherName').value = t.name;
-      document.getElementById('editTeacherEmail').value = t.email || '';
-      document.getElementById('editTeacherCode').value = t.code || '';
-      openModal('teacherModal');
-    }
-
-    async function saveTeacherEdit() {
-      try {
-        await authedPost('updateTeacher', {
-          row: editingTeacherRow,
-          name: document.getElementById('editTeacherName').value.trim(),
-          email: document.getElementById('editTeacherEmail').value.trim(),
-          code: document.getElementById('editTeacherCode').value.trim()
+        document.getElementById('apps-container').addEventListener('mousemove', e => {
+            for(const card of document.querySelectorAll('.app-card')) {
+                const rect = card.getBoundingClientRect(), x = e.clientX - rect.left, y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`); card.style.setProperty('--mouse-y', `${y}px`);
+            }
         });
-        closeModal('teacherModal');
-        toast('نوێکرایەوە ✓');
-        await loadAdminData();
-      } catch (err) { toast('هەڵە: ' + err.message); }
-    }
 
-    async function deleteTeacher(row) {
-      if (!confirm('دڵنیایت لە سڕینەوەی ئەم مامۆستایە؟')) return;
-      try {
-        await authedPost('deleteTeacher', { row });
-        selectedTeacherRows.delete(row);
-        toast('سڕایەوە ✓');
-        await loadAdminData();
-      } catch (err) { toast('هەڵە: ' + err.message); }
-    }
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0'; splash.style.transform = 'scale(1.05)';
+            setTimeout(() => { splash.style.display = 'none'; document.body.classList.remove('overflow-hidden'); renderApps(); }, 1000); 
+        }, 3000); // Reduced splash slightly to get user to apps faster
+    });
 
-    async function bulkAddTeachers() {
-      const raw = document.getElementById('bulkTeachers').value.trim();
-      const msg = document.getElementById('bulkTeachersMsg');
-      if (!raw) return;
-      const list = raw.split('\n').map(line => line.trim()).filter(Boolean).map(line => {
-        const parts = line.split('|').map(s => s.trim());
-        return { name: parts[0] || '', email: parts[1] || '' };
-      }).filter(r => r.name);
-
-      if (list.length === 0) { msg.textContent = '⚠ هیچ ڕیزێکی دروست نەدۆزرایەوە.'; return; }
-      msg.textContent = 'زیادکردن...';
-      try {
-        const res = await authedPost('bulkAddTeachers', { list });
-        msg.textContent = `✓ ${res.added} مامۆستا زیادکرا.`;
-        document.getElementById('bulkTeachers').value = '';
-        await loadAdminData();
-      } catch (err) { msg.textContent = '⚠ هەڵە: ' + err.message; }
-    }
-
-    async function sendInvites(mode, singleRow) {
-      const msg = document.getElementById('inviteMsg');
-      let teacherRows;
-      if (mode === 'all') teacherRows = 'all';
-      else if (mode === 'one') teacherRows = [singleRow];
-      else teacherRows = [...selectedTeacherRows];
-
-      if (mode === 'selected' && teacherRows.length === 0) {
-        msg.textContent = '⚠ تکایە یەکێک لە مامۆستایان هەڵبژێرە.';
-        msg.style.color = '#A6432E';
-        return;
-      }
-
-      msg.textContent = 'ناردن...';
-      msg.style.color = '#6B7488';
-      try {
-        const res = await authedPost('sendInvites', { teacherRows });
-        msg.textContent = `✓ ${res.sent} ئیمەیل نێردرا.` +
-          (res.failed.length ? ` (${res.failed.length} سەرکەوتوو نەبوون: ${res.failed.join(', ')})` : '');
-        msg.style.color = res.failed.length ? '#B8801F' : '#4B7A63';
-      } catch (err) {
-        msg.textContent = '⚠ هەڵە: ' + err.message;
-        msg.style.color = '#A6432E';
-      }
-    }
-
-    // ---------- SETTINGS ----------
-    async function saveSettings() {
-      const msg = document.getElementById('settingsMsg');
-      msg.textContent = 'پاشەکەوتکردن...';
-      try {
-        const payload = {
-          academicYear: document.getElementById('setYear').value.trim(),
-          appUrl: document.getElementById('setAppUrl').value.trim(),
-          registerUrl: document.getElementById('setRegisterUrl').value.trim(),
-          newPassword: document.getElementById('setNewPw').value.trim()
-        };
-        const res = await authedPost('updateSettings', payload);
-        settings = res.settings;
-        applyThresholdSettings();
-        updateThresholdHintText();
-        if (payload.newPassword) {
-          adminPassword = payload.newPassword;
-          localStorage.setItem('uor_admin_pw', adminPassword);
-          document.getElementById('setNewPw').value = '';
+    function initPremiumClock() {
+        const mainEl = document.querySelector('main');
+        if (mainEl && !document.getElementById('premium-led-clock-container')) {
+            const clockContainer = document.createElement('div');
+            clockContainer.id = 'premium-led-clock-container';
+            clockContainer.className = "perspective-container w-full max-w-5xl mx-auto mb-2 relative z-20 px-1";
+            clockContainer.innerHTML = `
+                <div class="perspective-card led-border-window rounded-3xl bg-slate-950/60 p-[5px]">
+                    <div class="led-border-inner flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-5 rounded-[20px] bg-white/90 dark:bg-slate-900/95 border border-white/20 dark:border-slate-800/80 backdrop-blur-3xl">
+                        <div class="flex flex-col gap-2 order-1 w-full md:w-auto text-center md:text-left">
+                            <div class="flex items-center justify-center md:justify-start gap-2.5 text-slate-800 dark:text-slate-100 font-extrabold text-sm sm:text-base md:text-[17px] tracking-wide">
+                                <div class="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_12px_#3b82f6] animate-pulse"></div>
+                                <i data-lucide="calendar" class="w-[18px] h-[18px] text-brand-500"></i>
+                                <span id="live-date">Loading date...</span>
+                            </div>
+                            <div class="flex items-center justify-center md:justify-start gap-2 text-slate-600 dark:text-slate-300 font-bold text-xs sm:text-sm font-kurdish pr-0 md:pl-6" dir="rtl">
+                                <span id="kurdish-day-label" class="opacity-75 font-medium">باردەکرێت...</span>
+                                <span id="kurdish-date" class="font-extrabold text-brand-600 dark:text-brand-400 text-sm sm:text-base"></span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200/40 dark:border-slate-700/40 text-slate-500 dark:text-slate-400 font-medium text-[11px] sm:text-xs tracking-wider order-3 md:order-2 shadow-sm">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-500 animate-bounce"></i>
+                            <span>Ranya, Kurdistan Region</span>
+                        </div>
+                        <div class="flex items-center gap-2.5 font-mono text-sm sm:text-base font-black bg-slate-950 text-cyan-400 dark:text-cyan-400 px-4 py-1.5 rounded-xl border border-slate-800 shadow-[inset_0_2px_10px_rgba(0,0,0,0.8),0_0_15px_rgba(34,211,238,0.25)] tracking-wider order-2 md:order-3">
+                            <i data-lucide="clock" class="w-4 h-4 text-cyan-400"></i>
+                            <span id="live-time">00:00:00 AM</span>
+                        </div>
+                    </div>
+                </div>`;
+            mainEl.insertBefore(clockContainer, mainEl.firstChild);
         }
-        msg.textContent = '✓ پاشەکەوتکرا.';
-        msg.style.color = '#4B7A63';
-        renderRibbon();
-      } catch (err) {
-        msg.textContent = '⚠ هەڵە: ' + err.message;
-        msg.style.color = '#A6432E';
-      }
+
+        function updateClockLoop() {
+            const dateEl = document.getElementById('live-date'); const timeEl = document.getElementById('live-time'); const kurdishDateEl = document.getElementById('kurdish-date'); const kurdishDayEl = document.getElementById('kurdish-day-label');
+            if (!dateEl || !timeEl || !kurdishDateEl || !kurdishDayEl) return;
+            const now = new Date();
+            dateEl.textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            timeEl.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            kurdishDateEl.textContent = getKurdishSolarDate(now);
+            const kurdishDays = ["یەکشەممە", "دووشەممە", "سێشەممە", "چوارشەممە", "پێنجشەممە", "هەینی", "شەممە"];
+            kurdishDayEl.textContent = kurdishDays[now.getDay()] + ":";
+        }
+        setInterval(updateClockLoop, 1000); updateClockLoop();
     }
 
-    // Lets an admin retune how sensitive both duplicate checks (the public
-    // search-box stamp and the admin whole-database check) are, without
-    // touching any code — saved the same way as the rest of Settings.
-    async function saveThresholds() {
-      const msg = document.getElementById('thresholdMsg');
-      const dupVal = Number(document.getElementById('setDupThreshold').value);
-      const simVal = Number(document.getElementById('setSimThreshold').value);
-
-      if (!dupVal || !simVal || dupVal < 1 || dupVal > 100 || simVal < 1 || simVal > 100) {
-        msg.textContent = '⚠ هەردوو ڕێژە دەبێت ژمارەیەک بن لەنێوان ١ و ١٠٠.';
-        msg.style.color = '#A6432E';
-        return;
-      }
-      if (dupVal <= simVal) {
-        msg.textContent = '⚠ ڕێژەی "دووبارەیە" دەبێت بەرزتر بێت لە ڕێژەی "لێکچووی هەیە".';
-        msg.style.color = '#A6432E';
-        return;
-      }
-
-      msg.textContent = 'پاشەکەوتکردن...';
-      msg.style.color = '#6B7488';
-      try {
-        const res = await authedPost('updateSettings', { duplicateThreshold: dupVal, similarThreshold: simVal });
-        settings = res.settings;
-        applyThresholdSettings();
-        updateThresholdHintText();
-        msg.textContent = '✓ ڕێژەکان پاشەکەوتکران.';
-        msg.style.color = '#4B7A63';
-      } catch (err) {
-        msg.textContent = '⚠ هەڵە: ' + err.message;
-        msg.style.color = '#A6432E';
-      }
+    function toggleViewMode() {
+        isCompactView = !isCompactView;
+        localStorage.setItem('uor_compact_view', isCompactView);
+        renderApps(); // Re-render the grid based on the new mode
     }
 
-    // ---------- shared refresh (admin edits change public data too) ----------
-    async function refreshAfterAdminChange() {
-      const [publicTopics, adminTopics] = await Promise.all([
-        apiGet('getTopics', {}),
-        authedPost('getTopicsAdmin', {})
-      ]);
-      allTopics = publicTopics.topics;
-      topicsAdmin = adminTopics.topics;
-      populateSupervisorFilter();
-      renderRibbon();
-      renderResults();
-      renderOverview();
-      populateTopicYearFilter();
-      renderTopicsTable();
+    function renderApps() {
+        const container = document.getElementById('apps-container');
+        if(!container) return; container.innerHTML = '';
+
+        // Change layout mode and toggle button icon based on isCompactView
+        const toggleIcon = document.getElementById('view-toggle-icon');
+        if(toggleIcon) {
+            toggleIcon.setAttribute('data-lucide', isCompactView ? 'list' : 'layout-grid');
+        }
+
+        // Apply grid classes. Compact view uses many columns to eliminate scrolling.
+        if (isCompactView) {
+            container.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-6 relative';
+        } else {
+            container.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5 lg:gap-6 pb-6 relative';
+        }
+
+        const colorMap = {
+            pink: '#ec4899', slate: '#64748b', rose: '#f43f5e', emerald: '#10b981',
+            amber: '#f59e0b', purple: '#a855f7', cyan: '#06b6d4', blue: '#3b82f6',
+            violet: '#8b5cf6', indigo: '#6366f1', sky: '#0ea5e9', teal: '#14b8a6', 
+            orange: '#f97316', green: '#22c55e'
+        };
+
+        const sortedData = [...appsData].sort((a, b) => {
+            const aPinned = pinnedApps.includes(a.id) ? 1 : 0; const bPinned = pinnedApps.includes(b.id) ? 1 : 0; return bPinned - aPinned;
+        });
+
+        sortedData.forEach((app, index) => {
+            const isPinned = pinnedApps.includes(app.id); const delay = index * 0.05; const c = app.colors;
+            const colorMatch = c.icon.match(/text-([a-z]+)-/);
+            const themeName = colorMatch ? colorMatch[1] : 'slate';
+            const hexColor = colorMap[themeName] || '#64748b';
+            const orderNumber = appsData.findIndex(a => a.id === app.id) + 1;
+
+            const card = document.createElement('div');
+            card.setAttribute('data-name-en', app.titleEn.toLowerCase()); 
+            card.setAttribute('data-name-ku', app.titleKu);
+            
+            // Conditional Rendering Logic based on View Mode
+            if (isCompactView) {
+                // COMPACT / ONE-SCREEN VIEW
+                card.className = `app-card relative rounded-2xl p-2 sm:p-3 backdrop-blur-xl border shadow-sm transition-all duration-300 animate-card flex flex-col items-center justify-center text-center group hover:-translate-y-1 hover:shadow-md ${c.cardStyle} ${isPinned ? 'is-pinned-card' : ''}`;
+                card.style.animationDelay = `${delay}s`;
+                card.style.backgroundColor = `${hexColor}26`;
+                card.title = `${app.titleEn} - ${app.titleKu}`; // Tooltip for full text
+                
+                card.innerHTML = `
+                    <div class="dynamic-border-glow pointer-events-none" style="--card-color: ${hexColor}; border-radius: calc(1rem + 3px);"></div>
+                    
+                    <div class="absolute top-1 left-1 z-30 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-extrabold text-white shadow-sm" style="background-color: ${hexColor};">${orderNumber}</div>
+                    
+                    <button onclick="window.toggleAppPin(${app.id}, event)" class="absolute top-1 right-1 z-30 w-6 h-6 rounded-full flex items-center justify-center border backdrop-blur-md transition-all duration-300 ${isPinned ? 'bg-amber-500/20 border-amber-500/60 text-amber-500' : 'bg-slate-500/10 border-slate-300/20 text-slate-400 opacity-0 group-hover:opacity-100'}">
+                        <i data-lucide="pin" class="w-3 h-3 ${isPinned ? 'fill-current rotate-45' : ''}"></i>
+                    </button>
+                    
+                    <div class="relative z-10 flex flex-col items-center w-full justify-center">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border group-hover:scale-110 transition-transform duration-300 mb-2 ${c.iconBox}">
+                            <i data-lucide="${app.icon}" class="w-5 h-5 ${c.icon}"></i>
+                        </div>
+                        <h3 class="font-bold text-[10px] sm:text-[11px] text-center leading-tight w-full truncate px-1 ${c.title}">${app.titleEn}</h3>
+                        <h4 class="font-medium text-[9px] text-center mt-0.5 font-kurdish leading-tight w-full truncate px-1 opacity-80 ${c.subtitle}" dir="rtl">${app.titleKu}</h4>
+                    </div>`;
+            } else {
+                // DETAILED / GRID VIEW (Original)
+                card.className = `app-card relative rounded-[2rem] p-6 lg:p-7 backdrop-blur-xl border shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-all duration-300 animate-card flex flex-col justify-between h-full group hover:-translate-y-1.5 hover:shadow-xl dark:hover:shadow-[0_20px_40px_rgb(0,0,0,0.5)] ${c.cardStyle} ${isPinned ? 'is-pinned-card' : ''}`;
+                card.style.animationDelay = `${delay}s`;
+
+                card.innerHTML = `
+                    <div class="dynamic-border-glow pointer-events-none" style="--card-color: ${hexColor};"></div>
+                    <div class="absolute inset-0 rounded-[2rem] overflow-hidden z-0 pointer-events-none">
+                        <div class="absolute inset-0 opacity-10 dark:opacity-[0.18] transition-opacity duration-300 group-hover:opacity-[0.25]" 
+                             style="background: radial-gradient(circle at 15% 85%, ${hexColor}60, transparent 60%), radial-gradient(circle at 85% 15%, ${hexColor}30, transparent 50%);">
+                        </div>
+                        <div class="absolute -top-12 -right-12 w-44 h-44 rounded-full blur-3xl transition-transform duration-500 group-hover:scale-110 ${c.glow}"></div>
+                    </div>
+                    
+                    <button onclick="window.toggleAppPin(${app.id}, event)" class="absolute top-5 right-5 z-30 w-8 h-8 rounded-full flex items-center justify-center border backdrop-blur-md transition-all duration-300 active:scale-75 ${isPinned ? 'bg-amber-500/20 border-amber-500/60 text-amber-500 dark:text-amber-400' : 'bg-slate-500/10 border-slate-300/20 dark:border-white/10 text-slate-400 hover:text-slate-600 dark:hover:text-white'}">
+                        <i data-lucide="pin" class="w-3.5 h-3.5 ${isPinned ? 'fill-current rotate-45' : ''}"></i>
+                    </button>
+                    <div class="relative z-10 flex-grow">
+                        <div class="flex items-start gap-4 mb-5">
+                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm border group-hover:scale-105 transition-transform duration-300 ${c.iconBox}">
+                                <i data-lucide="${app.icon}" class="w-7 h-7 ${c.icon}"></i>
+                            </div>
+                            <div class="flex-grow pt-1.5 pr-6">
+                                <h3 class="font-bold text-[17px] leading-tight tracking-tight ${c.title}">${app.titleEn}</h3>
+                                <h4 class="font-bold text-[13px] mt-1.5 font-kurdish leading-tight ${c.subtitle}" dir="rtl">${app.titleKu}</h4>
+                            </div>
+                        </div>
+                        <p class="text-[14px] mb-8 leading-relaxed font-medium ${c.desc}">${app.desc}</p>
+                    </div>
+                    <div class="relative z-10 grid grid-cols-3 gap-3 mt-auto pt-5 border-t ${c.divider}">
+                        <button onclick="openApp('${app.url}')" class="flex flex-col items-center justify-center gap-2 py-2 rounded-xl transition-all active:scale-90 group/btn ${c.btnText}">
+                            <div class="p-2.5 rounded-full transition-colors border ${c.btnBox}"><i data-lucide="external-link" class="w-4 h-4"></i></div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Open</span>
+                        </button>
+                        <button onclick="copyToClipboard('${app.url}')" class="flex flex-col items-center justify-center gap-2 py-2 rounded-xl transition-all active:scale-90 group/btn ${c.btnText}">
+                            <div class="p-2.5 rounded-full transition-colors border ${c.btnBox}"><i data-lucide="copy" class="w-4 h-4"></i></div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Copy</span>
+                        </button>
+                        <button onclick="shareApp('${app.titleEn}', '${app.url}')" class="flex flex-col items-center justify-center gap-2 py-2 rounded-xl transition-all active:scale-90 group/btn ${c.btnText}">
+                            <div class="p-2.5 rounded-full transition-colors border ${c.btnBox}"><i data-lucide="share-2" class="w-4 h-4"></i></div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Share</span>
+                        </button>
+                    </div>`;
+            }
+            
+            card.addEventListener('click', (e) => { if (e.target.closest('button')) return; openApp(app.url); });
+            container.appendChild(card);
+        });
+        
+        lucide.createIcons();
     }
 
-    // ---------- helpers ----------
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    window.toggleAppPin = function(appId, event) {
+        if (event) { event.stopPropagation(); event.preventDefault(); }
+        if (pinnedApps.includes(appId)) { pinnedApps = pinnedApps.filter(id => id !== appId); showToast("Removed from Favorites"); }
+        else { pinnedApps.push(appId); showToast("Added to Favorites ⭐"); }
+        localStorage.setItem('uor_pinned_apps', JSON.stringify(pinnedApps)); renderApps();
+    };
 
-    function toast(text) {
-      const host = document.getElementById('toastHost');
-      const el = document.createElement('div');
-      el.className = 'toast';
-      el.textContent = text;
-      host.appendChild(el);
-      setTimeout(() => el.remove(), 3000);
+    function filterApps() {
+        const query = document.getElementById('search-input').value.toLowerCase();
+        document.querySelectorAll('.app-card').forEach(card => {
+            card.style.display = (card.getAttribute('data-name-en').includes(query) || card.getAttribute('data-name-ku').includes(query)) ? 'flex' : 'none';
+        });
     }
 
-    function debounce(fn, ms) {
-      let t;
-      return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+    function openApp(url) { window.open(url, '_blank', 'noopener,noreferrer'); }
+    
+    function copyToClipboard(text) {
+        if (!navigator.clipboard) {
+            var txt = document.createElement("textarea"); txt.value = text; txt.style.position = "fixed"; document.body.appendChild(txt);
+            txt.focus(); txt.select(); document.execCommand('copy'); document.body.removeChild(txt); showToast("Link copied"); return;
+        }
+        navigator.clipboard.writeText(text).then(() => showToast("Link copied successfully"));
+    }
+    
+    function shareApp(title, url) { 
+        if (navigator.share) { 
+            navigator.share({ title: title, text: `Check out ${title}:`, url: url }).catch(() => {}); 
+        } else { copyToClipboard(url); } 
     }
 
-    function escapeHtml(s) {
-      return (s || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-    function escapeAttr(s) {
-      return (s || '').toString().replace(/"/g, '&quot;');
+    let toastTimeout;
+    function showToast(message) {
+        const toast = document.getElementById('toast'); document.getElementById('toast-msg').textContent = message;
+        toast.classList.remove('hidden', 'toast-enter'); void toast.offsetWidth; toast.classList.add('toast-enter');
+        clearTimeout(toastTimeout); toastTimeout = setTimeout(() => toast.classList.add('hidden'), 3000);
     }
 
-    boot();
-
-    // ---------- PWA install ----------
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
-      });
+    function initTheme() {
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark'); document.getElementById('theme-color-meta').setAttribute('content', '#050B14');
+        } else {
+            document.documentElement.classList.remove('dark'); document.getElementById('theme-color-meta').setAttribute('content', '#f8fafc');
+        }
     }
-  </script>
+    function toggleTheme() {
+        if (document.documentElement.classList.contains('dark')) {
+            document.documentElement.classList.remove('dark'); localStorage.theme = 'light'; document.getElementById('theme-color-meta').setAttribute('content', '#f8fafc');
+        } else {
+            document.documentElement.classList.add('dark'); localStorage.theme = 'dark'; document.getElementById('theme-color-meta').setAttribute('content', '#050B14');
+        }
+    }
+
+    function registerProductionSW() {
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                .then(reg => {
+                    console.log('Network Caching Core Enabled Scope:', reg.scope);
+                    reg.addEventListener('updatefound', () => {
+                        const worker = reg.installing;
+                        worker.addEventListener('statechange', () => {
+                            if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+                                if (confirm('New system update available. Update and refresh now?')) {
+                                    location.reload();
+                                }
+                            }
+                        });
+                    });
+                })
+                .catch(err => console.error('PWA Core Initialization Failure:', err));
+            });
+        }
+    }
+</script>
 </body>
 </html>
