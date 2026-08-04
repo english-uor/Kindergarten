@@ -1,4 +1,4 @@
-# Library of Kindergarten Research — کتێبخانەی توێژینەوەی بەشی باخچەی منداڵان
+# Library of English Research — کتێبخانەی توێژینەوەی بەشی زمانی ئینگلیزی
 
 A single-page tool for the Kindergarten Department, College of Basic
 Education, University of Raparin. Teachers search the whole archive of past
